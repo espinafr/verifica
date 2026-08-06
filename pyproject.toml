@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verifica"
+version = "0.0.1"
+dependencies = [
+    "platformdirs>=4.11.0"
+]
+authors = [
+  { name="Théo Modeneis Ruela", email="theo.ruela@gmail.com" },
+]
+description = "Uma ferramenta simples para correção de atividades via CLI."
+readme = "README.md"
+requires-python = ">=3.14.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/espinafr/Verifica"
+Issues = "https://github.com/espinafr/Verifica/issues"
