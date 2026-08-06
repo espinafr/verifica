@@ -1,5 +1,5 @@
 {
-    "files": ["file1.py", "file2.py", "*.jpg"],
+    "files": ["file1.py", "file2.py"],
     "description": "Exercício de exemplo",
     "max_file_size": "1MB",
     "file1.py": {

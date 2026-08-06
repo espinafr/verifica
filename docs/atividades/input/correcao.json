@@ -1,0 +1,27 @@
+{
+    "files": ["atividade1.py"],
+    "description": "Exercício de exemplo",
+    "max_file_size": "1MB",
+    "file1.py": {
+        "INPUT": [
+            {
+                "input": "Théo",
+                "output": "Olá Théo",
+                "info": "lida com acentos no nome"
+            },
+            {
+                "input": "Jim do The Office",
+                "output": "Olá Jim do The Office",
+                "info": "lida com espaços no nome"
+            },
+            {
+                "input": "Dwight",
+                "output": "Olá Dwight"
+            },
+            {
+                "input": "Angela",
+                "output": "Olá Angela"
+            }
+        ]
+    }
+}
