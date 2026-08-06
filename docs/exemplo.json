@@ -1,0 +1,77 @@
+{
+    "files": ["file1.py", "file2.py", "*.jpg"],
+    "description": "Exercício de exemplo",
+    "max_file_size": "1MB",
+    "file1.py": {
+        "CLI": [
+            {
+                "input": "python file1.py",
+                "expected": "Hello, World!",
+                "description": "Mostra hello world no console"
+            }
+        ],
+        "CLASS": [
+            {
+                "name": "MyClass",
+                "methods": [
+                    {
+                        "name": "my_method",
+                        "input": [1, 2],
+                        "expected": 3,
+                        "description": "Soma dois números"
+                    }
+                ]
+            }
+        ],
+        "INPUT": [
+            {
+                "input": "ola tudo bem",
+                "output": "sim senhor"
+            }
+        ],
+        "SEQUENCE_INPUT":[
+            {
+                "input": ["ola", "tudo", "bem"],
+                "output": "sim senhor"
+            }
+        ],
+        "FUNCTION": [
+            {
+                "name": "my_function",
+                "input": [1, 2],
+                "expected": 3,
+                "description": "Soma dois números"
+            }
+        ]
+    },
+    "file2.py": {
+        "CLI": [
+            {
+                "input": "python file2.py",
+                "expected": "Hello, World!",
+                "description": "Mostra hello world no console"
+            }
+        ],
+        "CLASS": [
+            {
+                "name": "MyClass",
+                "methods": [
+                    {
+                        "name": "my_method",
+                        "input": [1, 2],
+                        "expected": 3,
+                        "description": "Soma dois números"
+                    }
+                ]
+            }
+        ],
+        "FUNCTION": [
+            {
+                "name": "my_function",
+                "input": [1, 2],
+                "expected": 3,
+                "description": "Soma dois números"
+            }
+        ]
+    }
+}

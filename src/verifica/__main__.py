@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 
 from config import settings
+from check import Checker
 
 def main():
     parser = argparse.ArgumentParser(description="Uma ferramenta simples para correção de atividades via CLI.", add_help=False)
@@ -12,9 +13,7 @@ def main():
     
     args = parser.parse_args()
     
-    greeting = f"Hello, {args.caminho}!"
-    print(greeting)
-    print(settings.config_path)
+    checker = Checker(args.atividade, args.caminho)
 
 if __name__ == "__main__":
     main()

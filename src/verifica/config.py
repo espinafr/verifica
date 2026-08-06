@@ -35,7 +35,7 @@ class Config:
     def __check_config_state(self):
         defaultConfig = {
             "version": version("verifica") if PackageNotFoundError is None else "0.0.1b",
-            "url": "https://github.com/"
+            "url": "https://raw.githubusercontent.com",
         }
 
         current_config = self.__read_keys()
