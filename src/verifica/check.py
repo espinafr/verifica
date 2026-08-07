@@ -55,8 +55,8 @@ class Checker:
                             self.logger.info(f"ADICIONANDO COMANDO CLI: {file} {command['input']}")
                             self.roadmap.append({
                                 "info": command.get("info", f"comando '{command['input']}' retorna '{command['expected']}'"),
-                                "args": [current_file_path, command["input"].split(" "), command["expected"]],
-                                "action": self.test_CLI
+                                "args": [self, current_file_path, command["input"].split(" "), command["expected"]],
+                                "action": Checker.test_CLI
                             })
                     elif check_step == "STRUCTURE":
                         importedFile = imports_tester.Imported(current_file_path)
@@ -87,17 +87,19 @@ class Checker:
                             self.logger.info(f"FUNÇÕES DETECTADAS")
                             for function_info in subsequent_steps["FUNCTIONS"]:
                                 self.logger.info(f"ADICIONANDO FUNÇÃO {function_info['name']}")
-                                currentFunction = imports_tester.FunctionTester(importedFile, function_info["name"], function_info["input"], function_info["expected"])
+                                currentFunction = imports_tester.FunctionTester(importedFile, function_info["name"])
                                 self.roadmap.append({
                                     "info": function_info.get("info", f"função {function_info['name']} existe"),
                                     "args": [currentFunction],
                                     "action": imports_tester.FunctionTester.get_existance
                                 })
-                                self.roadmap.append({
-                                    "info": function_info.get("info", f"função {function_info['name']}({', '.join(map(str, function_info['input']))}) retorna {function_info['expected']}"),
-                                    "args": [currentFunction],
-                                    "action": imports_tester.FunctionTester.test
-                                })
+                                for run in function_info["runs"]:
+                                    self.logger.info(f"ADICIONANDO RUN {function_info['name']}({', '.join(map(str, run['input']))})")
+                                    self.roadmap.append({
+                                        "info": run.get("info", f"função {function_info['name']}({', '.join(map(str, run['input']))}) retorna {run['expected']}"),
+                                        "args": [currentFunction, run["input"], run["expected"]],
+                                        "action": imports_tester.FunctionTester.test
+                                    })
                     elif check_step == "INPUTS":
                         for input_info in subsequent_steps:
                             self.logger.info(f"ADICIONANDO INPUT {input_info['input']}")
@@ -123,10 +125,11 @@ class Checker:
             self.logger.error(f"Detalhes do erro: {e}\n{traceback.format_exc()}")
 
 
-    def test_CLI(self, input_args: list[str], expected_output: str) -> bool:
+    def test_CLI(self, file_path: str, input_args: list[str], expected_output: str) -> bool:
         try:
-            result = subprocess.run([sys.executable] + input_args, capture_output=True, text=True)
-            return result.stdout.strip() == expected_output
+            result = subprocess.run([sys.executable, file_path] + input_args, capture_output=True, text=True)
+            self.logger.warning(f"Saída do comando '{' '.join(input_args)}': {result.stdout.strip()}")
+            return expected_output in result.stdout.strip()
         except subprocess.CalledProcessError as e:
             self.logger.warning(f"O script '{input_args[0]}' falhou com o código de saída {e.returncode}")
             self.logger.warning(f"Detalhes do erro: {e.stderr}")

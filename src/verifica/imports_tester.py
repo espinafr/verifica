@@ -4,7 +4,6 @@ import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 
-
 def _call_with_captured_output(callable_obj, *args, **kwargs):
     stdout_buffer = StringIO()
     stderr_buffer = StringIO()
@@ -108,11 +107,9 @@ class ClassTester:
         return True
 
 class FunctionTester:
-    def __init__(self, import_info: Imported, function_name: str, input_args: list, expected_output):
+    def __init__(self, import_info: Imported, function_name: str):
         self.import_info = import_info
         self.function_name = function_name
-        self.input_args = input_args
-        self.expected_output = expected_output
         self.exists = self.check_existance()
 
     def check_existance(self):
@@ -128,7 +125,7 @@ class FunctionTester:
         """Retorna se a função existe"""
         return self.exists
 
-    def test(self):
+    def test(self, input_args: list, expected_output):
         """Testa se a função retorna o valor esperado"""
         if not self.exists:
             self.import_info.logger.info(f"A função '{self.function_name}' não existe.")
@@ -136,10 +133,10 @@ class FunctionTester:
 
         try:
             func = getattr(self.import_info.module, self.function_name, None)
-            result, captured_stdout, _ = _call_with_captured_output(func, *self.input_args)
+            result, captured_stdout, _ = _call_with_captured_output(func, *input_args)
             observed_output = result if result is not None else captured_stdout
-            if observed_output != self.expected_output and str(observed_output) != str(self.expected_output):
-                self.import_info.logger.warning(f"A função '{self.function_name}' retornou '{observed_output}', mas era esperado '{self.expected_output}'.")
+            if observed_output != expected_output and str(observed_output) != str(expected_output):
+                self.import_info.logger.warning(f"A função '{self.function_name}' retornou '{observed_output}', mas era esperado '{expected_output}'.")
                 return False
         except Exception as e:
             self.import_info.logger.warning(f"Falha ao testar a função '{self.function_name}': {e}")
