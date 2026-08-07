@@ -13,7 +13,7 @@
                 {
                     "name": "soma",
                     "input": [-5, 3],
-                    "expected": "2",
+                    "expected": "-2",
                     "info": "soma números negativos"
                 },
                 {
