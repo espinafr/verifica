@@ -20,7 +20,7 @@
                     "name": "soma",
                     "input": [-5, -3],
                     "expected": "-8",
-                    "info": "soma números negativos"
+                    "info": "soma dois números negativos"
                 }
             ]
         }
