@@ -1,46 +1,65 @@
 {
     "files": ["file1.py", "file2.py"],
     "description": "Exercício de exemplo",
-    "max_file_size": "1MB",
     "file1.py": {
         "CLI": [
             {
-                "input": "python file1.py",
+                "input": "",
                 "expected": "Hello, World!",
-                "description": "Mostra hello world no console"
-            }
-        ],
-        "CLASS": [
+                "info": "mostra hello world no console"
+            },
             {
-                "name": "MyClass",
-                "methods": [
-                    {
-                        "name": "my_method",
-                        "input": [1, 2],
-                        "expected": 3,
-                        "description": "Soma dois números"
-                    }
-                ]
+                "input": "Théo",
+                "expected": "Hello, Théo!",
+                "info": "lida com input de nome"
             }
         ],
-        "INPUT": [
+        "STRUCTURE": {
+            "FUNCTIONS": [
+                {
+                    "name": "my_function",
+                    "input": [1, 2],
+                    "expected": 3,
+                    "info": "soma dois números"
+                }
+            ],
+            "CLASSES": [
+                {
+                    "name": "MyClass",
+                    "methods": [
+                        {
+                            "name": "my_method",
+                            "signature": "my_method(self, a, b)",
+                            "input": [1, 2],
+                            "expected": 3,
+                            "info": "soma dois números"
+                        }
+                    ]
+                },
+                {
+                    "name": "AnotherClass",
+                    "methods": [
+                        {
+                            "name": "another_method",
+                            "signature": "another_method(self, x)",
+                            "input": [5],
+                            "expected": 10,
+                            "info": "multiplica por 2"
+                        }
+                    ]
+                }
+            ]
+        },
+        "INPUTS": [
             {
                 "input": "ola tudo bem",
-                "output": "sim senhor"
+                "expected": "sim senhor"
             }
         ],
-        "SEQUENCE_INPUT":[
+        "SEQUENCE_INPUTS":[
             {
-                "input": ["ola", "tudo", "bem"],
-                "output": "sim senhor"
-            }
-        ],
-        "FUNCTION": [
-            {
-                "name": "my_function",
-                "input": [1, 2],
-                "expected": 3,
-                "description": "Soma dois números"
+                "input": ["ola", "ola", "ola"],
+                "expected": ["ei", "ei", "ei"]
             }
         ]
     },
@@ -49,7 +68,7 @@
             {
                 "input": "python file2.py",
                 "expected": "Hello, World!",
-                "description": "Mostra hello world no console"
+                "info": "mostra hello world no console"
             }
         ],
         "CLASS": [
@@ -60,7 +79,7 @@
                         "name": "my_method",
                         "input": [1, 2],
                         "expected": 3,
-                        "description": "Soma dois números"
+                        "info": "soma dois números"
                     }
                 ]
             }
@@ -70,7 +89,7 @@
                 "name": "my_function",
                 "input": [1, 2],
                 "expected": 3,
-                "description": "Soma dois números"
+                "info": "soma dois números"
             }
         ]
     }
