@@ -29,6 +29,7 @@ class Fetcher:
         :raises RuntimeError: Se não for possível buscar o exercício
         """
         try:
+            self.logger.info("Baixando arquivo de correção...")
             request = Request(self._build_url())
 
             request.add_header("Cache-Control", "no-cache, no-store, must-revalidate")

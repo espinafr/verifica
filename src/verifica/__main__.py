@@ -37,6 +37,7 @@ def main():
 
     answers = Fetcher(args.atividade)
     try:
+        print("Baixando arquivo de correção...")
         logging.debug(f"CAMINHO DO ARQUIVO BAIXADO: {answers.fetch()}")
     except RuntimeError as e:
         parser.error(f"Não foi possível buscar o exercício '{args.atividade}'")

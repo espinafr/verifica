@@ -90,7 +90,7 @@ class Checker:
                                 currentFunction = imports_tester.FunctionTester(importedFile, function_info["name"], function_info["input"], function_info["expected"])
                                 self.roadmap.append({
                                     "info": function_info.get("info", f"função {function_info['name']} existe"),
-                                    "args": [currentFunction, function_info["name"], function_info["input"], function_info["expected"]],
+                                    "args": [currentFunction],
                                     "action": imports_tester.FunctionTester.get_existance
                                 })
                                 self.roadmap.append({
