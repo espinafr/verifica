@@ -1,0 +1,28 @@
+{
+    "files": ["funcoes.py"],
+    "description": "Exercício de funções",
+    "funcoes.py": {
+        "STRUCTURE": {
+            "FUNCTIONS": [
+                {
+                    "name": "soma",
+                    "input": [1, 2],
+                    "expected": "3",
+                    "info": "soma dois números"
+                },
+                {
+                    "name": "soma",
+                    "input": [-5, 3],
+                    "expected": "2",
+                    "info": "soma números negativos"
+                },
+                {
+                    "name": "soma",
+                    "input": [-5, -3],
+                    "expected": "-8",
+                    "info": "soma números negativos"
+                }
+            ]
+        }
+    }
+}
