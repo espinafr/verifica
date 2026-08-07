@@ -1,0 +1,34 @@
+{
+    "files": ["classes.py"],
+    "description": "Exercício de classes",
+    "classes.py": {
+        "STRUCTURE": {
+            "CLASSES": [
+                {
+                    "name": "Pessoa",
+                    "initialized": true,
+                    "initializer": {
+                        "args": ["Théo", 18],
+                        "info": "inicializa a classe"
+                    },
+                    "methods": [
+                        {
+                            "name": "aniversario",
+                            "input": [1],
+                            "expected": "19",
+                            "info": "aniversario incrementa a idade da pessoa em 1 e retorna o novo valor"
+                        },
+                        {
+                            "name": "ano",
+                            "static": true,
+                            "input": [],
+                            "expected": "2026",
+                            "info": "ano retorna o ano atual"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+}

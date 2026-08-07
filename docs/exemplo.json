@@ -19,32 +19,39 @@
                 {
                     "name": "my_function",
                     "input": [1, 2],
-                    "expected": 3,
+                    "expected": "3",
                     "info": "soma dois números"
                 }
             ],
             "CLASSES": [
                 {
-                    "name": "MyClass",
+                    "name": "RG",
+                    "initialized": true,
+                    "initializer": {
+                        "args": ["Théo", 18],
+                        "info": "inicializa a classe"
+                    },
                     "methods": [
                         {
-                            "name": "my_method",
-                            "signature": "my_method(self, a, b)",
-                            "input": [1, 2],
-                            "expected": 3,
-                            "info": "soma dois números"
-                        }
-                    ]
-                },
-                {
-                    "name": "AnotherClass",
-                    "methods": [
+                            "name": "idade",
+                            "input": [1],
+                            "expected": "19",
+                            "info": "incrementa a idade em 1",
+                            "static": false
+                        },
                         {
-                            "name": "another_method",
-                            "signature": "another_method(self, x)",
-                            "input": [5],
-                            "expected": 10,
-                            "info": "multiplica por 2"
+                            "name": "idade",
+                            "input": [-1],
+                            "expected": "17",
+                            "info": "decrementa a idade em 1",
+                            "static": false
+                        },
+                        {
+                            "name": "nome",
+                            "input": [],
+                            "expected": "Théo",
+                            "info": "retorna o nome da pessoa",
+                            "static": false
                         }
                     ]
                 }
@@ -78,7 +85,7 @@
                     {
                         "name": "my_method",
                         "input": [1, 2],
-                        "expected": 3,
+                        "expected": "3",
                         "info": "soma dois números"
                     }
                 ]
@@ -88,7 +95,7 @@
             {
                 "name": "my_function",
                 "input": [1, 2],
-                "expected": 3,
+                "expected": "3",
                 "info": "soma dois números"
             }
         ]
