@@ -1,0 +1,16 @@
+{
+    "files": ["seq_inputs.py"],
+    "description": "Exercício de inputs sequenciais",
+    "seq_inputs.py": {
+        "SEQUENCE_INPUTS":[
+            {
+                "input": ["amora", "morango", "cereja"],
+                "expected": ["Hmmm, também gosto de amora, morango e cereja!"]
+            },
+            {
+                "input": ["fidelidade", "amor", "pudim"],
+                "expected": ["Hmmm, também gosto de fidelidade, amor e pudim!"]
+            }
+        ]
+    }
+}

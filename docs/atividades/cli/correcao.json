@@ -1,0 +1,22 @@
+{
+    "files": ["cli.py"],
+    "description": "Exercício de CLI",
+    "cli.py": {
+        "CLI": [
+            {
+                "input": "",
+                "expected": "Hello, World!",
+                "info": "mostra hello world no console"
+            },
+            {
+                "input": "Théo",
+                "expected": "Hello, Théo!",
+                "info": "lida com input de nome"
+            },
+            {
+                "input": "Enzo",
+                "expected": "Hello, Enzo!"
+            }
+        ]
+    }
+}
