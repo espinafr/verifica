@@ -6,7 +6,7 @@
             {
                 "input": "",
                 "expected": "Hello, World!",
-                "info": "mostra hello world no console"
+                "info": "mostra hello world no console quando não há input"
             },
             {
                 "input": "Théo",
