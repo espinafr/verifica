@@ -1,47 +1,53 @@
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from config import settings
+import tempfile
+import json
 
 class Fetcher:
     def __init__(self, path):
-        self.exercise = self._normalize_path(path)
+        self.exercise = path
         self.base_url = settings.get_config("url")
-        self.remote_path = f"{self.exercise}/atv.json"
-        self._tempdir = None
+        self.remote_path = f"{self.exercise.strip()}/{settings.get_config("answers_file_name")}"
+        self._tempfile = None
 
-    @staticmethod
-    def _normalize_path(path):
-        exercise = Path(str(path).strip()).name.strip("/")
-        if not exercise:
-            raise ValueError("o caminho do exercício não pode ser vazio")
-        return exercise
+    def __str__(self):
+        return f"Fetcher(url=\"{self._build_url()}\")"
 
     def _build_url(self):
         return f"{self.base_url}/{self.remote_path}"
 
-    def fetch(self, destination=None):
+    def fetch(self) -> str:
+        """Baixa o arquivo de respostas e salva em uma pasta temporária
+
+        :returns: O caminho do arquivo salvo
+        :rtype: str
+        :raises RuntimeError: Se não for possível buscar o exercício
+        """
         try:
             with urlopen(self._build_url()) as response:
                 content = response.read().decode("utf-8")
         except (HTTPError, URLError) as error:
-            raise RuntimeError(f"falha ao buscar o exercício '{self.exercise}'") from error
+            raise RuntimeError(f"Falha ao buscar o exercício '{self.exercise}'") from error
 
-        if destination is None:
-            self._tempdir = TemporaryDirectory(prefix=f"verifica-{self.exercise}-")
-            destination = Path(self._tempdir.name)
-        else:
-            destination = Path(destination)
+        self.tempfile = tempfile.NamedTemporaryFile(mode='w+t', prefix='verifica-', suffix='.json', encoding='utf-8')
+        self.tempfile.write(content)
 
-        exercise_dir = destination / self.exercise
-        exercise_dir.mkdir(parents=True, exist_ok=True)
+        return self.tempfile.name
 
-        init_file = exercise_dir / "__init__.py"
-        init_file.write_text(content, encoding="utf-8")
-        return exercise_dir
+    def get_content(self):
+        if not self.tempfile:
+            raise ValueError("o arquivo de correção não existe")
+        
+        return self.tempfile.read()
+
+    def get_decoded_json(self):
+        if not self.tempfile:
+            raise ValueError("o arquivo de correção não existe")
+
+        json.loads(self.get_content,)
 
     def cleanup(self):
-        if self._tempdir is not None:
-            self._tempdir.cleanup()
-            self._tempdir = None
+        if self.tempfile != None:
+            self.tempfile.close()

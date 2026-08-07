@@ -2,7 +2,7 @@
     "files": ["atividade1.py"],
     "description": "Exercício de exemplo",
     "max_file_size": "1MB",
-    "file1.py": {
+    "atividade1.py": {
         "INPUT": [
             {
                 "input": "Théo",

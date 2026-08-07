@@ -1,5 +1,6 @@
 from platformdirs import user_config_dir
 from importlib.metadata import version, PackageNotFoundError
+from time import time
 import json
 import os
 
@@ -30,12 +31,21 @@ class Config:
         if not self.config_path or not os.path.exists(self.config_path):
             return {}
         with open(self.config_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            try:
+                return json.load(f)
+            except json.decoder.JSONDecodeError:
+                return {}
 
     def __check_config_state(self):
+        try:
+            current_version = version("verifica")
+        except PackageNotFoundError:
+            current_version = f"indev-{time()}"
+
         defaultConfig = {
-            "version": version("verifica") if PackageNotFoundError is None else "0.0.1b",
+            "version": current_version,
             "url": "https://raw.githubusercontent.com",
+            "answers_file_name": "correcao.json"
         }
 
         current_config = self.__read_keys()
@@ -49,8 +59,8 @@ class Config:
         current_config = self.__read_keys()
         if version:
             current_config["version"] = version
-        current_config.update(new_data)
-        self.__save_keys(current_config)
+        new_data.update(current_config)
+        self.__save_keys(new_data)
 
     def get_config(self, key: str = None) -> dict:
         config = self.__read_keys()
