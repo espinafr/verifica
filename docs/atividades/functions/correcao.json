@@ -14,13 +14,18 @@
                     "name": "soma",
                     "input": [-5, 3],
                     "expected": "-2",
-                    "info": "soma números negativos"
+                    "info": "soma um número negativo e um positivo"
                 },
                 {
                     "name": "soma",
                     "input": [-5, -3],
                     "expected": "-8",
                     "info": "soma dois números negativos"
+                },
+                {
+                    "name": "soma",
+                    "input": [15, -3],
+                    "expected": "12"
                 }
             ]
         }

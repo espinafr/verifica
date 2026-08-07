@@ -60,23 +60,30 @@ class Checker:
                             })
                     elif check_step == "STRUCTURE":
                         importedFile = imports_tester.Imported(current_file_path)
-                        if subsequent_steps["CLASSES"]:
+                        if subsequent_steps.get("CLASSES"):
                             self.logger.info(f"CLASSES DETECTADAS")
                             for class_info in subsequent_steps["CLASSES"]:
                                 self.logger.info(f"ADICIONANDO CLASSE {class_info['name']}")
-                                currentClass = imports_tester.ClassTester(importedFile, class_info["name"], class_info["methods"])
+                                is_initialized = class_info.get("initialized", False)
+                                currentClass = imports_tester.ClassTester(importedFile, class_info["name"], class_info["methods"], is_initialized)
                                 self.roadmap.append({
                                     "info": class_info.get("info", f"classe {class_info['name']} existe e possui os métodos esperados"),
-                                    "args": [currentClass, class_info["name"], class_info["methods"]],
+                                    "args": [currentClass],
                                     "action": imports_tester.ClassTester.get_existance
                                 })
+                                if is_initialized:
+                                    self.roadmap.append({
+                                        "info": class_info.get("info", f"classe {class_info['name']} pode ser instanciada"),
+                                        "args": [currentClass, *class_info["initializer"]["args"]],
+                                        "action": imports_tester.ClassTester.initialize_instance
+                                    })
                                 for method_info in class_info["methods"]:
                                     self.roadmap.append({
-                                        "info": method_info.get("info", f"{method_info['name']} retorna {method_info['expected']}"),
-                                        "args": [method_info["name"], method_info["input"], method_info["expected"]],
+                                        "info": method_info.get("info", f"{method_info['name']}({', '.join(map(str, method_info['input']))}) retorna {method_info['expected']}"),
+                                        "args": [method_info["name"], method_info.get("static", False), method_info["input"], method_info["expected"]],
                                         "action": currentClass.test_method
                                     })
-                        if subsequent_steps["FUNCTIONS"]:
+                        if subsequent_steps.get("FUNCTIONS"):
                             self.logger.info(f"FUNÇÕES DETECTADAS")
                             for function_info in subsequent_steps["FUNCTIONS"]:
                                 self.logger.info(f"ADICIONANDO FUNÇÃO {function_info['name']}")
@@ -87,7 +94,7 @@ class Checker:
                                     "action": imports_tester.FunctionTester.get_existance
                                 })
                                 self.roadmap.append({
-                                    "info": function_info.get("info", f"função {function_info['name']} retorna {function_info['expected']}"),
+                                    "info": function_info.get("info", f"função {function_info['name']}({', '.join(map(str, function_info['input']))}) retorna {function_info['expected']}"),
                                     "args": [currentFunction],
                                     "action": imports_tester.FunctionTester.test
                                 })
@@ -109,10 +116,11 @@ class Checker:
                             })
                     else:
                         raise ValueError(f"Característica desconhecida '{check_step}' no arquivo de correção")
-        except ValueError as e:
+        except (ValueError, KeyError) as e:
             self.logger.error(f"Erro ao configurar roadmap: {e}\nEstrutura do arquivo de correção inválida para o arquivo '{file}'.")
         except Exception as e:
-            self.logger.error(f"Erro ao configurar roadmap para o arquivo '{file}'.\n{traceback.format_exc()}")
+            self.logger.error(f"Erro ao configurar roadmap para o arquivo '{file}'.")
+            self.logger.error(f"Detalhes do erro: {e}\n{traceback.format_exc()}")
 
 
     def test_CLI(self, input_args: list[str], expected_output: str) -> bool:
