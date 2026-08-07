@@ -18,9 +18,13 @@
             "FUNCTIONS": [
                 {
                     "name": "my_function",
-                    "input": [1, 2],
-                    "expected": "3",
-                    "info": "soma dois números"
+                    "runs": [
+                        {
+                            "input": [1, 2],
+                            "expected": "3",
+                            "info": "soma dois números"
+                        }
+                    ]
                 }
             ],
             "CLASSES": [

@@ -6,26 +6,27 @@
             "FUNCTIONS": [
                 {
                     "name": "soma",
-                    "input": [1, 2],
-                    "expected": "3",
-                    "info": "soma dois números"
-                },
-                {
-                    "name": "soma",
-                    "input": [-5, 3],
-                    "expected": "-2",
-                    "info": "soma um número negativo e um positivo"
-                },
-                {
-                    "name": "soma",
-                    "input": [-5, -3],
-                    "expected": "-8",
-                    "info": "soma dois números negativos"
-                },
-                {
-                    "name": "soma",
-                    "input": [15, -3],
-                    "expected": "12"
+                    "runs": [
+                        {
+                            "input": [1, 2],
+                            "expected": "3",
+                            "info": "soma dois números"
+                        },
+                        {
+                            "input": [-5, 3],
+                            "expected": "-2",
+                            "info": "soma um número negativo e um positivo"
+                        },
+                        {
+                            "input": [-5, -3],
+                            "expected": "-8",
+                            "info": "soma dois números negativos"
+                        },
+                        {
+                            "input": [15, -3],
+                            "expected": "12"
+                        }
+                    ]
                 }
             ]
         }
