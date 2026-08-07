@@ -1,7 +1,7 @@
 {
-    "files": ["atividade1.py"],
-    "description": "Exercício de exemplo",
-    "atividade1.py": {
+    "files": ["inputs.py"],
+    "description": "Exercício de inputs",
+    "inputs.py": {
         "INPUTS": [
             {
                 "input": "Théo",
