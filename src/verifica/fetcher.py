@@ -8,11 +8,12 @@ import json
 from .config import settings
 
 class Fetcher:
-    def __init__(self, path):
+    def __init__(self, path, local: bool = False):
         self.exercise = path
-        self.base_url = settings.get_config("url")
-        self.remote_path = f"{self.exercise.strip()}/{settings.get_config('answers_file_name')}"
-        self._tempfile = None
+        self.local = local
+        if not local:
+            self.base_url = settings.get_config("url")
+            self.remote_path = f"{self.exercise.strip()}/{settings.get_config('answers_file_name')}"
         self.logger = logging.getLogger(__name__)
 
     def __str__(self):
@@ -39,27 +40,36 @@ class Fetcher:
             with urlopen(request) as response:
                 content = response.read().decode("utf-8")
         except (HTTPError, URLError) as error:
-            self.logger.error(f"Falha ao buscar o exercício '{self.exercise}': {error}")
-            raise RuntimeError(f"Falha ao buscar o exercício '{self.exercise}'") from error
+            self.logger.error(f"Falha ao buscar o arquivo de correção '{self.exercise}': {error}")
+            raise RuntimeError(f"Falha ao buscar o arquivo de correção '{self.exercise}'") from error
 
-        self.tempfile = tempfile.NamedTemporaryFile(mode='w+t', prefix='verifica-', suffix='.json', encoding='utf-8')
-        self.tempfile.write(content)
+        self.file = tempfile.NamedTemporaryFile(mode='w+t', prefix='verifica-', suffix='.json', encoding='utf-8')
+        self.file.write(content)
 
-        return self.tempfile.name
+        return self.file.name
+
+    def get_file(self):
+        if self.local:
+            local_path = Path(self.exercise) / settings.get_config("answers_file_name")
+            if not local_path.is_file():
+                raise FileNotFoundError(f"O arquivo de respostas não foi encontrado em '{local_path}'")
+            self.file = open(local_path, 'r', encoding='utf-8')
+            return str(local_path)
+
 
     def get_content(self):
-        if not self.tempfile:
+        if not self.file:
             raise ValueError("o arquivo de correção não existe")
 
-        self.tempfile.seek(0)
-        return self.tempfile.read()
+        self.file.seek(0)
+        return self.file.read()
 
     def get_decoded_json(self):
-        if not self.tempfile:
+        if not self.file:
             raise ValueError("o arquivo de correção não existe")
 
         return json.loads(self.get_content())
 
     def cleanup(self):
-        if self.tempfile != None:
-            self.tempfile.close()
+        if self.file != None:
+            self.file.close()

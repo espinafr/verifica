@@ -10,6 +10,11 @@
             {
                 "input": ["fidelidade", "amor", "pudim"],
                 "expected": ["Hmmm, também gosto de fidelidade, amor e pudim!"]
+            },
+            {
+                "input": ["REPITA", "fidelidade", "pudim"],
+                "expected": ["fidelidade", "pudim"],
+                "info": "REPITA repete os inputs anteriores, sem a palavra REPITA"
             }
         ]
     }

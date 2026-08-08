@@ -1,0 +1,73 @@
+{
+    "files": ["classes.py", "cli.py"],
+    "description": "Exercício com múltiplos arquivos e testes",
+    "classes.py": {
+        "STRUCTURE": {
+            "FUNCTIONS": [
+                {
+                    "name": "soma",
+                    "runs": [
+                        {
+                            "input": [1, 2],
+                            "expected": "3",
+                            "info": "soma dois números"
+                        },
+                        {
+                            "input": [18, 182],
+                            "expected": "200"
+                        }
+                    ]
+                }
+            ],
+            "CLASSES": [
+                {
+                    "name": "Pessoa",
+                    "initialized": true,
+                    "initializer": {
+                        "args": ["Théo", 18],
+                        "info": "inicializa a classe"
+                    },
+                    "methods": [
+                        {
+                            "name": "aniversario",
+                            "input": [1],
+                            "expected": "19",
+                            "info": "aniversario incrementa a idade da pessoa em 1 e retorna o novo valor"
+                        },
+                        {
+                            "name": "ano",
+                            "static": true,
+                            "input": [],
+                            "expected": "2026",
+                            "info": "ano retorna o ano atual"
+                        }
+                    ]
+                }
+            ]
+        },
+        "INPUTS": [
+            {
+                "input": "João",
+                "expected": "Olá, João!"
+            }
+        ]
+    },
+    "cli.py": {
+        "CLI": [
+            {
+                "input": "",
+                "expected": "Hello, World!",
+                "info": "mostra hello world no console quando não há input"
+            },
+            {
+                "input": "Théo",
+                "expected": "Hello, Théo!",
+                "info": "lida com input de nome"
+            },
+            {
+                "input": "Enzo",
+                "expected": "Hello, Enzo!"
+            }
+        ]
+    }
+}
