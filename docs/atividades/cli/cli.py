@@ -1,5 +1,5 @@
 # Solução do exercício de exemplo
-# espinafr/verifica/refs/heads/master/docs/atividades/cli
+# espinafr/verifica/master/docs/atividades/cli
 
 import argparse
 

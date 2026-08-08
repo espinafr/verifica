@@ -1,5 +1,5 @@
 # Solução do exercício de exemplo
-# espinafr/verifica/refs/heads/master/docs/atividades/classes
+# espinafr/verifica/master/docs/atividades/classes
 
 from datetime import datetime
 

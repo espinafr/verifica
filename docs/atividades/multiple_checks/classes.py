@@ -1,6 +1,6 @@
 # Arquivo 1
 # Solução do exercício de exemplo
-# espinafr/verifica/refs/heads/master/docs/atividades/multiple_checks
+# espinafr/verifica/master/docs/atividades/multiple_checks
 
 from datetime import datetime
 

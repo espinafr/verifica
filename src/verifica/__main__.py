@@ -18,7 +18,7 @@ def main():
     positional = parser.add_argument_group("argumentos posicionais")
     options = parser.add_argument_group("opções")
 
-    positional.add_argument("atividade", nargs="?", help="A URL do github usada para a correção da atividade.")
+    positional.add_argument("atividade", nargs="?", help="A URL do github ou caminho local do arquivo usado para a correção da atividade.")
     options.add_argument("-f", "--files", default=Path.cwd(), help="Diretório com a(s) atividade(s) a ser(em) corrigida(s).")
     options.add_argument("-h", "--help", "--ajuda", action="help", help="Mostra essa mensagem de ajuda.")
     options.add_argument("-c", "--config", action="store_true", help="Mostra o caminho do arquivo de configuração.")

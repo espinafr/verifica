@@ -1,11 +1,28 @@
 <div align="center">
     <h1 align="center">Verifica</h1>
     <p align="center">Uma ferramenta simples para correção de atividades em python via CLI.</p>
+    <p align="center"><a href="https://pypi.org/project/verifica/">Página no Pypi</a> · <a href="https://github.com/espinafr/verifica/tree/master/docs">Como usar</a> · <a href="https://github.com/espinafr/verifica/issues/new?template=denúncia-de-bug.yml">Reporte um bug</a></p>
 </div>
 
 ## Sobre o projeto
 
-**Verifica** é uma ferramenta simples que permite que professores preparem testes automatizados para corrigir suas ativiaddes em python, fornecendo aos alunos uma correção instantânea para seus programas antes deles serem enviados.
+**Verifica** é uma ferramenta simples que permite que professores preparem testes automatizados para corrigir atividades em python, fornecendo aos alunos uma correção instantânea para seus programas antes deles serem enviados oficialmente.
+
+## Como usar
+_Quer saber como criar os arquivos de teste? [Clique aqui](https://github.com/espinafr/verifica/tree/master/docs)_
+1. Baixe a ferramenta:
+```bash
+pip install verifica
+```
+
+2. Faça as atividades propostas com base nas orientações recebidas.
+
+3. No diretório com os arquivos `.py`, execute o comando `python -m verifica` seguido da localização do diretório com os arquivos de correção no github
+```bash
+python -m verifica usuario/repositorio/branch/localizacao/da/pasta
+```
+
+
 
 ## Como compilar
 
