@@ -117,7 +117,7 @@ class Checker:
                         for sequence_input_info in subsequent_steps:
                             self.logger.info(f"ADICIONANDO SEQUENCE_INPUTS {sequence_input_info['input']}")
                             self.roadmap.append({
-                                "info": sequence_input_info.get("info", f"input '{sequence_input_info['input'].join(' -> ')}' retorna '{sequence_input_info['expected'].join(' -> ')}'"),
+                                "info": sequence_input_info.get("info", f"input '{', '.join(sequence_input_info['input'])}' retorna '{', '.join(sequence_input_info['expected'])}'"),
                                 "args": [current_file_path, sequence_input_info["input"], sequence_input_info["expected"]],
                                 "action": self.test_SEQUENCE_INPUT
                             })
@@ -162,7 +162,7 @@ class Checker:
         try:
             result = subprocess.run(
                 [sys.executable, file], 
-                input=input_data.join("\n"), 
+                input=("\n").join(input_data), 
                 capture_output=True, 
                 text=True
             )
