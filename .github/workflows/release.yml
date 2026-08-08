@@ -1,0 +1,35 @@
+name: Publicar Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Baixar código
+      uses: actions/checkout@v4
+
+    - name: Configurar o Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Instalar dependências de build
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+
+    - name: Empacotar o projeto
+      run: python -m build
+
+    - name: Criar Release e anexar arquivos
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/* 
+        generate_release_notes: true
