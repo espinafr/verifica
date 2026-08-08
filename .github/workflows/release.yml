@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
 
     steps:
     - name: Baixar código
@@ -33,3 +34,6 @@ jobs:
       with:
         files: dist/* 
         generate_release_notes: true
+
+    - name: Publicar pacote no PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
