@@ -35,7 +35,7 @@ class Imported:
                     spec.loader.exec_module(module)
                 return module
             except Exception as e:
-                self.logger.error(f"Falha ao importar o módulo '{module_path}': {e}")
+                self.logger.warning(f"Falha ao importar o módulo '{module_path}': {e}")
                 raise ImportError(f"Falha ao importar o módulo '{module_path}'") from e
 
 class ClassTester:
