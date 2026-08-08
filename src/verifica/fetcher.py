@@ -11,7 +11,7 @@ class Fetcher:
     def __init__(self, path):
         self.exercise = path
         self.base_url = settings.get_config("url")
-        self.remote_path = f"{self.exercise.strip()}/{settings.get_config("answers_file_name")}"
+        self.remote_path = f"{self.exercise.strip()}/{settings.get_config('answers_file_name')}"
         self._tempfile = None
         self.logger = logging.getLogger(__name__)
 

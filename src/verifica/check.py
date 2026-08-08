@@ -185,7 +185,7 @@ class Checker:
                 result = False
                 self.logger.warning(f"Erro ao executar o teste '{step['info']}': {e}\n{traceback.format_exc()}")
             
-            results.append(f"{colors[result]}{colors["bold"]}{':)' if result else ':('}{colors["reset"]}{colors[result]} {step['info']}{colors["reset"]}")
+            results.append(f"{colors[result]}{colors['bold']}{':)' if result else ':('}{colors['reset']}{colors[result]} {step['info']}{colors['reset']}")
 
         return results
 
