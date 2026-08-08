@@ -26,7 +26,14 @@ Esses arquivos devem seguir uma estrutura JSON rígida. Qualquer desvio pode faz
 </details>
 
 ## Nome e localização
-Todo arquivo de correção deve se chamar exatamente "`correcao.json`" e deve **ser o único arquivo com esse nome** dentro da pasta do exercício.
+Todo arquivo de correção deve se chamar exatamente "`correcao.json`" e deve **ser o único arquivo com esse nome** dentro da pasta do exercício. 
+
+Por padrão, a ferramenta vai procurar arquivos em https://raw.githubusercontent.com/ usando o esquema `usuario/repositorio/branch/localizacao/da/pasta`
+
+Para usar arquivos de correção locais basta executar a ferramenta com a flag  `-l` seguida do caminho do arquivo.
+```bash
+verifica -l C:\Users\win\Desktop\atividade_input
+```
 
 ## Estrutura geral
 Um arquivo de correção é um JSON com três chaves principais:
@@ -255,5 +262,3 @@ Um arquivo de correção pode combinar vários tipos de teste em um mesmo exerc�
   }
 }
 ```
-
-Com isso, fica claro que um arquivo de correção é um mapa de testes para o exercício, organizado por arquivo e por tipo de verificação.
