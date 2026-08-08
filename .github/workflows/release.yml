@@ -1,4 +1,4 @@
-name: Publicar Release
+name: Publicar Pacote
 
 on:
   push:
@@ -11,6 +11,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+
+    environment: pypi 
 
     steps:
     - name: Baixar código
