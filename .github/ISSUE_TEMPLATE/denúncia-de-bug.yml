@@ -6,7 +6,7 @@ body:
 - type: markdown
   attributes:
     value: >
-      #### Obrigado por contribuir! Mas antes de enviar a denúncia, por favor, certifique-se de que uma denúncia idêntica já não exista dando uma olhada nos [relatórios existentes e passados](https://github.com/espinafr/truco-client/issues?page=1&q=is%3Aissue+sort%3Acreated-desc)
+      #### Obrigado por contribuir! Mas antes de enviar a denúncia, por favor, certifique-se de que uma denúncia idêntica já não exista dando uma olhada nos [issues existentes e passados](https://github.com/espinafr/verifica/issues?page=1&q=is%3Aissue+sort%3Acreated-desc)
 
 - type: textarea
   attributes:
