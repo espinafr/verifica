@@ -4,6 +4,7 @@ import subprocess
 import traceback
 import logging
 import sys
+from types import SimpleNamespace
 
 from . import imports_tester
 from .config import settings
@@ -30,7 +31,7 @@ class Checker:
         """
         return Path(self.exercises_path / file_path).is_file()
 
-    def setup_roadmap(self) -> None:
+    def setup_roadmap(self) -> bool:
         """Popula a lista roadmap com uma sequência de testes a serem realizados"""
         try:
             self.logger.info(f"Configurando roadmap")
@@ -59,7 +60,11 @@ class Checker:
                                 "action": Checker.test_CLI
                             })
                     elif check_step == "STRUCTURE":
-                        importedFile = imports_tester.Imported(current_file_path)
+                        try:
+                            importedFile = imports_tester.Imported(current_file_path)
+                        except Exception as e:
+                            self.logger.warning(f"Falha ao importar o arquivo '{file}': {e}")
+                            importedFile = SimpleNamespace(module=None, logger=self.logger)
                         if subsequent_steps.get("CLASSES"):
                             self.logger.info(f"CLASSES DETECTADAS")
                             for class_info in subsequent_steps["CLASSES"]:
@@ -119,10 +124,14 @@ class Checker:
                     else:
                         raise ValueError(f"Característica desconhecida '{check_step}' no arquivo de correção")
         except (ValueError, KeyError) as e:
-            self.logger.error(f"Erro ao configurar roadmap: {e}\nEstrutura do arquivo de correção inválida para o arquivo '{file}'.")
+            self.logger.error(f"Estrutura do arquivo de correção inválida para o arquivo '{file}'.\nDetalhes: {e}")
+            return False
         except Exception as e:
             self.logger.error(f"Erro ao configurar roadmap para o arquivo '{file}'.")
             self.logger.error(f"Detalhes do erro: {e}\n{traceback.format_exc()}")
+            return False
+
+        return True
 
 
     def test_CLI(self, file_path: str, input_args: list[str], expected_output: str) -> bool:
@@ -164,11 +173,13 @@ class Checker:
             self.logger.warning(f"Detalhes do erro: {e.stderr}")
             return False
 
-    def run_roadmap(self) -> list:
-        """Executa os testes do roadmap e retorna uma lista de resultados
+    def make_result_message(self, result: bool, info: str) -> str:
+        """Gera uma mensagem de resultado formatada com cores
 
-        :returns: Lista de resultados dos testes
-        :rtype: list
+        :param result: Resultado do teste
+        :param info: Informação sobre o teste
+        :returns: Mensagem formatada
+        :rtype: str
         """
         colors = {
             True: Fore.GREEN if settings.enviroment_supports_colors else "",
@@ -176,6 +187,14 @@ class Checker:
             "bold": Style.BRIGHT if settings.enviroment_supports_colors else "",
             "reset": Style.RESET_ALL if settings.enviroment_supports_colors else ""
         }
+        return f"{colors[result]}{colors['bold']}{':)' if result else ':('}{colors['reset']} {colors[result]}{info}{colors['reset']}"
+
+    def run_roadmap(self) -> list:
+        """Executa os testes do roadmap e retorna uma lista de resultados
+
+        :returns: Lista de resultados dos testes
+        :rtype: list
+        """
         results = []
         for step in self.roadmap:
             try:
@@ -185,7 +204,7 @@ class Checker:
                 result = False
                 self.logger.warning(f"Erro ao executar o teste '{step['info']}': {e}\n{traceback.format_exc()}")
             
-            results.append(f"{colors[result]}{colors['bold']}{':)' if result else ':('}{colors['reset']} {colors[result]}{step['info']}{colors['reset']}")
+            results.append(self.make_result_message(result, step["info"]))
 
         return results
 
