@@ -1,7 +1,17 @@
 <div align="center">
     <h1 align="center">Verifica</h1>
-    <p align="center">Uma ferramenta simples para correção de atividades em python via CLI.</p>
-    <p align="center"><a href="https://pypi.org/project/verifica/">Página no Pypi</a> · <a href="https://github.com/espinafr/verifica/tree/master/docs">Como usar</a> · <a href="https://github.com/espinafr/verifica/issues/new?template=denúncia-de-bug.yml">Reporte um bug</a></p>
+    <p align="center">Uma ferramenta simples para correção de atividades em python via CLI.<br>
+    <table>
+        <tbody>
+            <tr>
+                <td><a href="https://pypi.org/project/verifica/">Página no Pypi</a></td>
+                <td align="right"><a href="https://github.com/espinafr/verifica/issues/new?template=denúncia-de-bug.yml">Reportar bug</a></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><a href="https://github.com/espinafr/verifica/tree/master/docs">Como configurar</a></td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 ## Sobre o projeto
@@ -9,7 +19,7 @@
 **Verifica** é uma ferramenta simples que permite que professores preparem testes automatizados para corrigir atividades em python, fornecendo aos alunos uma correção instantânea para seus programas antes deles serem enviados oficialmente.
 
 ## Como usar
-_Quer saber como criar os arquivos de teste? [Clique aqui](https://github.com/espinafr/verifica/tree/master/docs)_
+_Quer saber como criar os arquivos de correção? [Clique aqui](https://github.com/espinafr/verifica/tree/master/docs)_
 1. Baixe a ferramenta:
 ```bash
 pip install verifica
@@ -21,8 +31,6 @@ pip install verifica
 ```bash
 python -m verifica usuario/repositorio/branch/localizacao/da/pasta
 ```
-
-
 
 ## Como compilar
 
@@ -44,6 +52,10 @@ Os arquivos gerados (arquivos `.tar.gz` e `.whl`) estarão disponíveis no diret
 pip install dist/{NOME DO ARQUIVO GERADO}
 ```
 
+## Reconhecimentos
+
+Veja o arquivo [ACKNOWLEDGEMENTS](https://github.com/espinafr/verifica/blob/master/ACKNOWLEDGEMENTS.md)
+
 ## Licença
 
-Veja o arquivo LICENSE.
+Veja o arquivo [LICENSE](https://github.com/espinafr/verifica/blob/master/LICENSE).

@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gerador de correcao.json — verifica</title>
+<style>
+  :root{
+    --paper:#efe8d3;
+    --paper-dark:#e1d7b8;
+    --paper-white:#fbf7ea;
+    --ink:#221c12;
+    --navy:#1f3f63;
+    --navy-dark:#142a44;
+    --brick:#8a3324;
+    --mustard:#c8952a;
+    --forest:#3c5a3f;
+    --font-display:'Courier New', Courier, monospace;
+    --font-body:Georgia, 'Times New Roman', serif;
+    --font-mono:'Consolas','Menlo','Courier New', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    padding:24px 14px 60px;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background-color:#d9cfb0;
+    background-image:
+      linear-gradient(rgba(34,28,18,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,28,18,0.06) 1px, transparent 1px);
+    background-size:26px 26px;
+  }
+
+  a{ color:var(--navy-dark); }
+
+  .wrap{ max-width:980px; margin:0 auto; }
+
+  /* ---------- header ---------- */
+  .manual-header{
+    background:var(--navy);
+    color:var(--paper-white);
+    border:3px solid var(--ink);
+    box-shadow:7px 7px 0 var(--ink);
+    padding:20px 22px;
+    margin-bottom:22px;
+  }
+  .manual-header .eyebrow{
+    font-family:var(--font-display);
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    margin:0 0 6px;
+  }
+  .manual-header h1{
+    font-family:var(--font-display);
+    letter-spacing:.03em;
+    margin:0 0 8px;
+    font-size:1.7rem;
+    line-height:1.25;
+  }
+  .manual-header p{
+    margin:0;
+    font-size:.92rem;
+    max-width:64ch;
+    opacity:.95;
+  }
+  .manual-header .links{
+    margin-top:12px;
+    font-family:var(--font-mono);
+    font-size:.78rem;
+  }
+  .manual-header .links a{ color:var(--paper-white); text-decoration:underline; margin-right:14px; }
+
+  /* ---------- generic frame / double border ---------- */
+  .frame{
+    border:3px solid var(--ink);
+    background:var(--paper);
+    box-shadow:6px 6px 0 var(--ink);
+    padding:18px;
+    margin-bottom:22px;
+  }
+  .frame h2{
+    font-family:var(--font-display);
+    font-size:1rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    margin:0 0 12px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--ink);
+  }
+
+  label.field-label{
+    display:block;
+    font-family:var(--font-display);
+    font-size:.75rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  textarea#description-field{
+    width:100%;
+    min-height:56px;
+    font-family:var(--font-body);
+    font-size:.92rem;
+    padding:8px;
+    border:1px solid var(--ink);
+    background:#fff;
+    resize:vertical;
+  }
+  .top-actions{ margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .hint{ font-family:var(--font-body); font-style:italic; font-size:.8rem; color:#4a4128; }
+
+  /* ---------- buttons ---------- */
+  button{ font-family:var(--font-display); cursor:pointer; }
+
+  .btn-primary{
+    background:var(--navy);
+    color:#fff;
+    border:2px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+    padding:9px 15px;
+    font-size:.82rem;
+    letter-spacing:.02em;
+  }
+  .btn-primary:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+
+  .btn-secondary{
+    background:var(--paper-white);
+    color:var(--ink);
+    border:2px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+    padding:9px 15px;
+    font-size:.82rem;
+  }
+  .btn-secondary:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+
+  .btn-add{
+    background:var(--forest);
+    color:#fff;
+    border:2px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+    padding:7px 12px;
+    font-size:.76rem;
+    margin-top:8px;
+  }
+  .btn-add:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
+
+  .btn-remove{
+    background:var(--paper-white);
+    color:var(--brick);
+    border:1px solid var(--brick);
+    padding:3px 8px;
+    font-family:var(--font-mono);
+    font-size:.72rem;
+  }
+  .btn-remove:hover{ background:var(--brick); color:#fff; }
+
+  .btn-danger-outline{
+    background:transparent;
+    color:var(--brick);
+    border:1px dashed var(--brick);
+    padding:7px 12px;
+    font-size:.76rem;
+  }
+
+  /* ---------- toggles ---------- */
+  .toggles-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 6px;
+    margin-bottom:14px;
+    padding-bottom:14px;
+    border-bottom:2px dashed var(--ink);
+  }
+  .switch{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+    padding:7px 11px;
+    background:var(--paper-dark);
+    border:2px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);
+    user-select:none;
+  }
+  .switch:has(input:checked){
+    background:var(--forest);
+    color:#fff;
+  }
+  .switch input{ width:15px; height:15px; accent-color:var(--forest); }
+  .switch span{
+    font-family:var(--font-display);
+    font-size:.72rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+  }
+
+  /* ---------- blocks ---------- */
+  .block{ margin:14px 0 20px; padding:14px; border:1px solid var(--ink); background:var(--paper-white); }
+  .block.hidden{ display:none; }
+  .help{ font-family:var(--font-body); font-style:italic; font-size:.82rem; color:#3c3424; margin:0 0 10px; }
+  .help b{ font-style:normal; }
+  .help code{ font-family:var(--font-mono); background:var(--paper-dark); padding:0 3px; }
+
+  /* ---------- table-frame (double border) ---------- */
+  .table-frame{
+    border:3px solid var(--ink);
+    padding:5px;
+    background:var(--paper-dark);
+    overflow-x:auto;
+  }
+  .table-frame table{
+    width:100%;
+    min-width:520px;
+    border-collapse:collapse;
+    border:1px solid var(--ink);
+    background:#fff;
+  }
+  .table-frame th, .table-frame td{
+    border:1px solid var(--ink);
+    padding:7px 8px;
+    text-align:left;
+    vertical-align:top;
+    font-size:.82rem;
+  }
+  .table-frame thead th{
+    background:var(--navy);
+    color:var(--paper-white);
+    font-family:var(--font-display);
+    font-size:.68rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .table-frame input[type=text]{
+    width:100%;
+    min-width:90px;
+    border:1px solid #b9ae8c;
+    padding:4px 6px;
+    font-family:var(--font-mono);
+    font-size:.8rem;
+  }
+
+  /* ---------- tagbox / chips ---------- */
+  .tagbox{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:3px;
+    border:1px solid #b9ae8c;
+    background:#fff;
+    padding:4px;
+    min-height:32px;
+  }
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    border-left:4px dashed var(--brick);
+    padding:2px 6px;
+    font-family:var(--font-mono);
+    font-size:.76rem;
+    border-radius:1px;
+  }
+  .chip-x{ border:none; background:none; padding:0; font-weight:bold; color:var(--brick); font-size:.85rem; line-height:1; }
+  .tag-entry{
+    border:none;
+    outline:none;
+    flex:1;
+    min-width:70px;
+    font-family:var(--font-mono);
+    font-size:.8rem;
+    padding:3px;
+    background:transparent;
+  }
+
+  /* ---------- cards (funcoes / classes) ---------- */
+  .func-card, .class-card{
+    border:2px solid var(--ink);
+    background:var(--paper-dark);
+    padding:12px;
+    margin-bottom:16px;
+    box-shadow:4px 4px 0 rgba(34,28,18,.35);
+  }
+  .card-head{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; }
+  .card-head input[type=text]{
+    font-family:var(--font-display);
+    font-size:.88rem;
+    padding:5px 7px;
+    border:1px solid var(--ink);
+    background:#fff;
+    flex:1;
+    min-width:150px;
+  }
+  .mini-check{ font-family:var(--font-body); font-size:.8rem; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+
+  .initializer-box{ border:1px dashed var(--ink); padding:10px; margin:0 0 12px; background:#fff; }
+  .initializer-box.hidden{ display:none; }
+  .initializer-box label{ display:block; font-family:var(--font-body); font-size:.8rem; margin:0 0 4px; }
+  .initializer-box input[type=text]{
+    font-family:var(--font-mono);
+    padding:4px 6px;
+    border:1px solid #b9ae8c;
+    width:100%;
+  }
+  .initializer-box .tagbox{ margin-bottom:10px; }
+
+  /* ---------- file tabs ---------- */
+  .file-tabs-bar{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:5px; margin-top:6px; }
+  .file-tab{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--paper-dark);
+    border:2px solid var(--ink);
+    border-bottom:none;
+    padding:7px 8px;
+    box-shadow:3px -3px 0 var(--ink);
+    cursor:pointer;
+    position:relative;
+    top:3px;
+  }
+  .file-tab.active{ background:var(--paper); top:0; box-shadow:4px -4px 0 var(--ink); }
+  .file-tab-name{
+    font-family:var(--font-mono);
+    font-size:.82rem;
+    border:none;
+    background:transparent;
+    width:118px;
+    padding:2px;
+  }
+  .file-tab-close{ border:none; background:none; color:var(--brick); font-weight:bold; font-size:.85rem; padding:0 2px; }
+
+  .file-panels{
+    border:3px solid var(--ink);
+    background:var(--paper);
+    padding:18px;
+    box-shadow:6px 6px 0 var(--ink);
+  }
+  .file-panel{ display:none; }
+  .file-panel.active{ display:block; }
+  .empty-note{ font-family:var(--font-body); font-style:italic; font-size:.9rem; padding:10px 0; }
+
+  /* ---------- output ---------- */
+  #warnings{
+    background:#fbedc9;
+    border:2px dashed var(--brick);
+    padding:9px 12px;
+    margin-bottom:12px;
+    font-family:var(--font-body);
+    font-size:.83rem;
+  }
+  #warnings.hidden{ display:none; }
+  #warnings ul{ margin:6px 0 0; padding-left:20px; }
+
+  .output-frame{
+    border:3px solid var(--ink);
+    background:var(--paper-white);
+    box-shadow:0 0 0 1px var(--ink) inset;
+    padding:2px;
+  }
+  #json-preview{
+    font-family:var(--font-mono);
+    font-size:.76rem;
+    white-space:pre;
+    overflow:auto;
+    max-height:420px;
+    background:#fdfaf0;
+    border:1px dashed var(--ink);
+    padding:12px;
+    margin:0;
+  }
+
+  .status-msg{ font-family:var(--font-display); font-size:.75rem; color:var(--forest); }
+
+  footer{
+    text-align:center;
+    font-family:var(--font-body);
+    font-size:.78rem;
+    color:#4a4128;
+    margin-top:30px;
+  }
+  footer a{ color:var(--navy-dark); }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap;
+  }
+
+  :focus-visible{ outline:2px dashed var(--navy); outline-offset:2px; }
+
+  @media (max-width:640px){
+    .manual-header h1{ font-size:1.35rem; }
+    .file-tab-name{ width:90px; }
+    .card-head input[type=text]{ min-width:110px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+
+  <header class="manual-header">
+    <p class="eyebrow">manual de preenchimento — versão para navegador</p>
+    <h1>gerador de correcao.json</h1>
+    <p>Monte visualmente o arquivo de correção usado pelo <strong>verifica</strong> para testar automaticamente as atividades em Python dos seus alunos, sem precisar escrever o JSON à mão.</p>
+    <p class="links">
+      <a href="https://github.com/espinafr/verifica" target="_blank" rel="noopener">repositório</a>
+      <a href="https://pypi.org/project/verifica/" target="_blank" rel="noopener">pypi</a>
+      <a href="https://github.com/espinafr/verifica/tree/master/docs" target="_blank" rel="noopener">documentação completa</a>
+    </p>
+  </header>
+
+  <section class="frame">
+    <h2>01 — dados gerais</h2>
+    <label class="field-label" for="description-field">descrição do exercício <em>(opcional)</em></label>
+    <textarea id="description-field" placeholder="ex.: Exercício de funções e classes"></textarea>
+    <div class="top-actions">
+      <button type="button" class="btn-secondary" data-action="import-json">carregar correcao.json existente</button>
+      <button type="button" class="btn-danger-outline" data-action="reset-all">reiniciar tudo</button>
+      <input type="file" id="import-file-input" accept="application/json,.json" class="visually-hidden">
+      <span class="status-msg" id="status-msg"></span>
+    </div>
+    <p class="hint" style="margin-top:10px;">O arquivo final deve se chamar exatamente <code>correcao.json</code> e ficar sozinho na pasta do exercício.</p>
+  </section>
+
+  <section class="frame">
+    <h2>02 — arquivos avaliados</h2>
+    <p class="hint">Cada aba abaixo representa um arquivo <code>.py</code> que o aluno deve entregar. O nome precisa ser exatamente igual ao do arquivo real.</p>
+    <div class="file-tabs-bar" id="file-tabs-list"></div>
+    <button type="button" class="btn-add" data-action="add-file" style="margin-top:0; box-shadow:3px -3px 0 var(--ink); position:relative; top:3px;">+ novo arquivo</button>
+    <div style="height:14px;"></div>
+    <div class="file-panels" id="file-panels"></div>
+  </section>
+
+  <section class="frame">
+    <h2>03 — correcao.json</h2>
+    <div id="warnings" class="hidden"></div>
+    <div class="output-frame">
+      <pre id="json-preview"></pre>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn-primary" data-action="copy-json">copiar JSON</button>
+      <button type="button" class="btn-primary" data-action="download-json">baixar correcao.json</button>
+    </div>
+  </section>
+
+  <footer>
+    gerador não-oficial para o pacote <a href="https://pypi.org/project/verifica/" target="_blank" rel="noopener">verifica</a> · consulte o <a href="https://github.com/espinafr/verifica/tree/master/docs" target="_blank" rel="noopener">README de arquivos de correção</a> para a especificação completa
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var fileSeq = 0;
+
+  /* ============ helpers ============ */
+
+  function escapeHTML(s){
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+  function escapeAttr(s){
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  }
+  function parseToken(raw){
+    var t = String(raw).trim();
+    if(t === '') return '';
+    if(t === 'true') return true;
+    if(t === 'false') return false;
+    if(t === 'null') return null;
+    if(/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
+    if(t.length >= 2 && ((t[0] === '"' && t[t.length-1] === '"') || (t[0] === "'" && t[t.length-1] === "'"))){
+      return t.slice(1, -1);
+    }
+    return t;
+  }
+  function flashMsg(text){
+    var el = document.getElementById('status-msg');
+    el.textContent = text;
+    setTimeout(function(){ if(el.textContent === text) el.textContent = ''; }, 2200);
+  }
+
+  /* ============ tagbox (chip / hashtag-like input) ============ */
+
+  function makeChip(text){
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.dataset.value = text;
+    var label = document.createElement('span');
+    label.className = 'chip-text';
+    label.textContent = text;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip-x';
+    btn.dataset.action = 'chip-remove';
+    btn.setAttribute('aria-label', 'remover ' + text);
+    btn.textContent = '\u00d7';
+    chip.appendChild(label);
+    chip.appendChild(btn);
+    return chip;
+  }
+  function makeTagbox(placeholder){
+    var wrap = document.createElement('div');
+    wrap.className = 'tagbox';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'tag-entry';
+    input.placeholder = placeholder || 'valor + Enter';
+    wrap.appendChild(input);
+    return wrap;
+  }
+  function addTagToBox(tagbox, value){
+    var entry = tagbox.querySelector('.tag-entry');
+    entry.insertAdjacentElement('beforebegin', makeChip(String(value)));
+  }
+  function readTags(tagbox){
+    var chips = tagbox.querySelectorAll('.chip');
+    var out = [];
+    for(var i = 0; i < chips.length; i++){ out.push(parseToken(chips[i].dataset.value)); }
+    return out;
+  }
+  function readTagsAsStrings(tagbox){
+    return readTags(tagbox).map(function(v){ return String(v); });
+  }
+
+  /* ============ row / card factories ============ */
+
+  function createSimpleRow(inputPlaceholder, expectedPlaceholder){
+    var tr = document.createElement('tr');
+    tr.className = 'simple-row';
+    tr.innerHTML =
+      '<td><input type="text" class="f-input" placeholder="' + escapeAttr(inputPlaceholder) + '"></td>' +
+      '<td><input type="text" class="f-expected" placeholder="' + escapeAttr(expectedPlaceholder) + '"></td>' +
+      '<td><input type="text" class="f-info" placeholder="(opcional)"></td>' +
+      '<td><button type="button" class="btn-remove" data-action="remove-row">remover</button></td>';
+    return tr;
+  }
+
+  function createSeqRow(){
+    var tr = document.createElement('tr');
+    tr.className = 'seq-row';
+    var tdIn = document.createElement('td');
+    var inBox = makeTagbox('entrada + Enter');
+    inBox.classList.add('seq-input-tagbox');
+    tdIn.appendChild(inBox);
+    var tdExp = document.createElement('td');
+    var expBox = makeTagbox('saída + Enter');
+    expBox.classList.add('seq-expected-tagbox');
+    tdExp.appendChild(expBox);
+    var tdInfo = document.createElement('td');
+    tdInfo.innerHTML = '<input type="text" class="f-info" placeholder="(opcional)">';
+    var tdBtn = document.createElement('td');
+    tdBtn.innerHTML = '<button type="button" class="btn-remove" data-action="remove-row">remover</button>';
+    tr.appendChild(tdIn); tr.appendChild(tdExp); tr.appendChild(tdInfo); tr.appendChild(tdBtn);
+    return tr;
+  }
+
+  function createRunRow(){
+    var tr = document.createElement('tr');
+    tr.className = 'run-row';
+    var tdIn = document.createElement('td');
+    tdIn.appendChild(makeTagbox('argumento + Enter'));
+    var tdExp = document.createElement('td');
+    tdExp.innerHTML = '<input type="text" class="f-expected" placeholder="valor esperado">';
+    var tdInfo = document.createElement('td');
+    tdInfo.innerHTML = '<input type="text" class="f-info" placeholder="(opcional)">';
+    var tdBtn = document.createElement('td');
+    tdBtn.innerHTML = '<button type="button" class="btn-remove" data-action="remove-row">remover</button>';
+    tr.appendChild(tdIn); tr.appendChild(tdExp); tr.appendChild(tdInfo); tr.appendChild(tdBtn);
+    return tr;
+  }
+
+  function createMethodRow(){
+    var tr = document.createElement('tr');
+    tr.className = 'method-row';
+    var tdName = document.createElement('td');
+    tdName.innerHTML = '<input type="text" class="method-name" placeholder="nome do método">';
+    var tdStatic = document.createElement('td');
+    tdStatic.innerHTML = '<label class="mini-check"><input type="checkbox" class="method-static"> estático</label>';
+    var tdIn = document.createElement('td');
+    tdIn.appendChild(makeTagbox('argumento + Enter'));
+    var tdExp = document.createElement('td');
+    tdExp.innerHTML = '<input type="text" class="f-expected" placeholder="valor esperado">';
+    var tdInfo = document.createElement('td');
+    tdInfo.innerHTML = '<input type="text" class="f-info" placeholder="(opcional)">';
+    var tdBtn = document.createElement('td');
+    tdBtn.innerHTML = '<button type="button" class="btn-remove" data-action="remove-row">remover</button>';
+    tr.appendChild(tdName); tr.appendChild(tdStatic); tr.appendChild(tdIn); tr.appendChild(tdExp); tr.appendChild(tdInfo); tr.appendChild(tdBtn);
+    return tr;
+  }
+
+  function createFuncCard(){
+    var card = document.createElement('div');
+    card.className = 'func-card';
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<input type="text" class="func-name" placeholder="nome da função">' +
+        '<button type="button" class="btn-remove" data-action="remove-func">remover função</button>' +
+      '</div>' +
+      '<div class="table-frame">' +
+        '<table><thead><tr><th>argumentos (input)</th><th>retorno esperado</th><th>info</th><th></th></tr></thead>' +
+        '<tbody class="runs-rows"></tbody></table>' +
+      '</div>' +
+      '<button type="button" class="btn-add" data-action="add-run">+ adicionar teste de função</button>';
+    return card;
+  }
+
+  function createClassCard(){
+    var card = document.createElement('div');
+    card.className = 'class-card';
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<input type="text" class="class-name" placeholder="nome da classe">' +
+        '<label class="mini-check"><input type="checkbox" class="class-initialized init-toggle"> instanciar (chama o construtor)</label>' +
+        '<button type="button" class="btn-remove" data-action="remove-class">remover classe</button>' +
+      '</div>' +
+      '<div class="initializer-box hidden">' +
+        '<label>argumentos do construtor</label>' +
+        '<div class="tagbox-slot"></div>' +
+        '<label>info do construtor <em>(opcional)</em></label>' +
+        '<input type="text" class="initializer-info" placeholder="ex.: inicializa a classe">' +
+      '</div>' +
+      '<div class="table-frame">' +
+        '<table><thead><tr><th>método</th><th></th><th>argumentos (input)</th><th>retorno esperado</th><th>info</th><th></th></tr></thead>' +
+        '<tbody class="methods-rows"></tbody></table>' +
+      '</div>' +
+      '<button type="button" class="btn-add" data-action="add-method">+ adicionar teste de método</button>';
+    var slot = card.querySelector('.tagbox-slot');
+    var tb = makeTagbox('argumento + Enter');
+    tb.classList.add('initializer-tagbox');
+    slot.replaceWith(tb);
+    return card;
+  }
+
+  function blockTemplate(cls, help, tableCols, addLabel, addAction, listClass){
+    var html = '<div class="block ' + cls + ' hidden">';
+    html += '<p class="help">' + help + '</p>';
+    if(listClass === 'cards'){
+      html += '<div class="' + tableCols + '"></div>';
+    } else {
+      html += '<div class="table-frame"><table><thead><tr>';
+      for(var i = 0; i < tableCols.length; i++){ html += '<th>' + tableCols[i] + '</th>'; }
+      html += '<th></th></tr></thead><tbody class="' + listClass + '"></tbody></table></div>';
+    }
+    html += '<button type="button" class="btn-add" data-action="' + addAction + '">' + addLabel + '</button>';
+    html += '</div>';
+    return html;
+  }
+
+  function defaultFileName(){
+    var n = 1;
+    var existing = {};
+    var names = document.querySelectorAll('.file-tab-name');
+    for(var i = 0; i < names.length; i++){ existing[names[i].value] = true; }
+    while(existing['arquivo' + n + '.py']) n++;
+    return 'arquivo' + n + '.py';
+  }
+
+  function createFileTabAndPanel(name){
+    fileSeq++;
+    var id = 'file-' + fileSeq;
+
+    var tab = document.createElement('div');
+    tab.className = 'file-tab';
+    tab.dataset.panel = id;
+    tab.innerHTML =
+      '<input type="text" class="file-tab-name" value="' + escapeAttr(name) + '" aria-label="nome do arquivo">' +
+      '<button type="button" class="file-tab-close" data-action="remove-file" title="remover arquivo" aria-label="remover arquivo">\u00d7</button>';
+
+    var panel = document.createElement('section');
+    panel.className = 'file-panel';
+    panel.id = id;
+    panel.innerHTML =
+      '<div class="toggles-row">' +
+        '<label class="switch"><input type="checkbox" class="toggle-cli" data-target=".block-cli"><span>CLI</span></label>' +
+        '<label class="switch"><input type="checkbox" class="toggle-functions" data-target=".block-functions"><span>funções</span></label>' +
+        '<label class="switch"><input type="checkbox" class="toggle-classes" data-target=".block-classes"><span>classes</span></label>' +
+        '<label class="switch"><input type="checkbox" class="toggle-inputs" data-target=".block-inputs"><span>inputs</span></label>' +
+        '<label class="switch"><input type="checkbox" class="toggle-seq" data-target=".block-seq"><span>inputs em sequência</span></label>' +
+      '</div>' +
+      blockTemplate('block-cli',
+        'Testa comandos executados no terminal. <b>input</b>: argumentos de linha de comando. <b>expected</b>: texto que deve aparecer na saída do programa.',
+        ['input','expected','info'], '+ adicionar teste de CLI', 'add-cli-row', 'cli-rows') +
+      blockTemplate('block-functions',
+        'Verifica se as funções do arquivo existem e se retornam o valor certo para os argumentos dados. Cada função pode ter vários testes.',
+        'functions-list', '+ adicionar função', 'add-func', 'cards') +
+      blockTemplate('block-classes',
+        'Verifica classes do arquivo: se podem ser instanciadas e o comportamento dos seus métodos (inclusive estáticos).',
+        'classes-list', '+ adicionar classe', 'add-class', 'cards') +
+      blockTemplate('block-inputs',
+        'Testa a leitura de uma entrada simples com <code>input()</code>. <b>input</b>: texto enviado pelo teclado. <b>expected</b>: saída esperada.',
+        ['input','expected','info'], '+ adicionar teste de input', 'add-inputs-row', 'inputs-rows') +
+      blockTemplate('block-seq',
+        'Testa múltiplas entradas em sequência. Digite cada entrada e aperte Enter para "prender" ela como uma etiqueta antes de passar para a próxima — igual marcar hashtags.',
+        ['input (sequência)','expected (sequência)','info'], '+ adicionar sequência', 'add-seq-row', 'seq-rows');
+
+    return { tab: tab, panel: panel };
+  }
+
+  function activateTab(tab){
+    var tabs = document.querySelectorAll('.file-tab');
+    for(var i = 0; i < tabs.length; i++){ tabs[i].classList.remove('active'); }
+    var panels = document.querySelectorAll('.file-panel');
+    for(var j = 0; j < panels.length; j++){ panels[j].classList.remove('active'); }
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  }
+
+  function addFile(name){
+    var pair = createFileTabAndPanel(name || defaultFileName());
+    document.getElementById('file-tabs-list').appendChild(pair.tab);
+    document.getElementById('file-panels').appendChild(pair.panel);
+    activateTab(pair.tab);
+    refreshPreview();
+  }
+
+  function removeFile(tab){
+    var panelId = tab.dataset.panel;
+    var panel = document.getElementById(panelId);
+    var wasActive = tab.classList.contains('active');
+    tab.remove();
+    if(panel) panel.remove();
+    if(wasActive){
+      var firstTab = document.querySelector('.file-tab');
+      if(firstTab) activateTab(firstTab);
+    }
+    refreshPreview();
+  }
+
+  /* ============ export (DOM -> JSON) ============ */
+
+  function buildJSON(){
+    var files = [];
+    var fileObjs = {};
+    var warnings = [];
+    var seenNames = {};
+
+    var panels = document.querySelectorAll('.file-panel');
+    panels.forEach(function(panel){
+      var tab = document.querySelector('.file-tab[data-panel="' + panel.id + '"]');
+      var filename = tab.querySelector('.file-tab-name').value.trim();
+      if(!filename){
+        warnings.push('Um arquivo está sem nome.');
+        filename = '(sem nome ' + panel.id + ')';
+      } else if(seenNames[filename]){
+        warnings.push('Nome de arquivo duplicado: "' + filename + '".');
+      }
+      seenNames[filename] = true;
+      files.push(filename);
+
+      var fileObj = {};
+      var blockCount = 0;
+
+      if(panel.querySelector('.toggle-cli').checked){
+        var cliRows = panel.querySelectorAll('.cli-rows .simple-row');
+        var cliList = [];
+        cliRows.forEach(function(r){
+          var input = r.querySelector('.f-input').value;
+          var expected = r.querySelector('.f-expected').value;
+          var info = r.querySelector('.f-info').value.trim();
+          var o = { input: input, expected: expected };
+          if(info) o.info = info;
+          cliList.push(o);
+        });
+        if(cliList.length){ fileObj.CLI = cliList; blockCount++; }
+      }
+
+      var structure = {};
+      if(panel.querySelector('.toggle-functions').checked){
+        var funcCards = panel.querySelectorAll('.functions-list .func-card');
+        var funcs = [];
+        funcCards.forEach(function(card){
+          var name = card.querySelector('.func-name').value.trim();
+          if(!name){ warnings.push('Há uma função sem nome em "' + filename + '".'); return; }
+          var runs = [];
+          card.querySelectorAll('.runs-rows .run-row').forEach(function(rr){
+            var tagbox = rr.querySelector('.tagbox');
+            var expected = rr.querySelector('.f-expected').value;
+            var info = rr.querySelector('.f-info').value.trim();
+            var o = { input: readTags(tagbox), expected: expected };
+            if(info) o.info = info;
+            runs.push(o);
+          });
+          funcs.push({ name: name, runs: runs });
+        });
+        if(funcs.length){ structure.FUNCTIONS = funcs; }
+      }
+      if(panel.querySelector('.toggle-classes').checked){
+        var classCards = panel.querySelectorAll('.classes-list .class-card');
+        var classes = [];
+        classCards.forEach(function(card){
+          var name = card.querySelector('.class-name').value.trim();
+          if(!name){ warnings.push('Há uma classe sem nome em "' + filename + '".'); return; }
+          var initialized = card.querySelector('.class-initialized').checked;
+          var c = { name: name, initialized: initialized };
+          if(initialized){
+            var tagbox = card.querySelector('.initializer-tagbox');
+            var info = card.querySelector('.initializer-info').value.trim();
+            var initObj = { args: readTags(tagbox) };
+            if(info) initObj.info = info;
+            c.initializer = initObj;
+          }
+          var methods = [];
+          card.querySelectorAll('.methods-rows .method-row').forEach(function(mr){
+            var mname = mr.querySelector('.method-name').value.trim();
+            if(!mname) return;
+            var mtagbox = mr.querySelector('.tagbox');
+            var mexpected = mr.querySelector('.f-expected').value;
+            var minfo = mr.querySelector('.f-info').value.trim();
+            var mstatic = mr.querySelector('.method-static').checked;
+            var mo = { name: mname, input: readTags(mtagbox), expected: mexpected };
+            if(minfo) mo.info = minfo;
+            if(mstatic) mo.static = true;
+            methods.push(mo);
+          });
+          c.methods = methods;
+          classes.push(c);
+        });
+        if(classes.length){ structure.CLASSES = classes; }
+      }
+      if(structure.FUNCTIONS || structure.CLASSES){ fileObj.STRUCTURE = structure; blockCount++; }
+
+      if(panel.querySelector('.toggle-inputs').checked){
+        var inRows = panel.querySelectorAll('.inputs-rows .simple-row');
+        var inList = [];
+        inRows.forEach(function(r){
+          var input = r.querySelector('.f-input').value;
+          var expected = r.querySelector('.f-expected').value;
+          var info = r.querySelector('.f-info').value.trim();
+          var o = { input: input, expected: expected };
+          if(info) o.info = info;
+          inList.push(o);
+        });
+        if(inList.length){ fileObj.INPUTS = inList; blockCount++; }
+      }
+
+      if(panel.querySelector('.toggle-seq').checked){
+        var seqRows = panel.querySelectorAll('.seq-rows .seq-row');
+        var seqList = [];
+        seqRows.forEach(function(r){
+          var inTb = r.querySelector('.seq-input-tagbox');
+          var expTb = r.querySelector('.seq-expected-tagbox');
+          var info = r.querySelector('.f-info').value.trim();
+          var o = { input: readTagsAsStrings(inTb), expected: readTagsAsStrings(expTb) };
+          if(info) o.info = info;
+          seqList.push(o);
+        });
+        if(seqList.length){ fileObj.SEQUENCE_INPUTS = seqList; blockCount++; }
+      }
+
+      if(blockCount === 0){
+        warnings.push('"' + filename + '" não tem nenhum bloco de verificação preenchido.');
+      }
+
+      fileObjs[filename] = fileObj;
+    });
+
+    if(files.length === 0){
+      warnings.push('Nenhum arquivo foi adicionado ainda.');
+    }
+
+    var out = {};
+    out.files = files;
+    var desc = document.getElementById('description-field').value.trim();
+    if(desc) out.description = desc;
+    files.forEach(function(f){ out[f] = fileObjs[f]; });
+
+    return { json: out, warnings: warnings };
+  }
+
+  function refreshPreview(){
+    var result = buildJSON();
+    document.getElementById('json-preview').textContent = JSON.stringify(result.json, null, 4);
+    var box = document.getElementById('warnings');
+    if(result.warnings.length){
+      box.classList.remove('hidden');
+      var html = '<strong>atenção:</strong><ul>';
+      for(var i = 0; i < result.warnings.length; i++){ html += '<li>' + escapeHTML(result.warnings[i]) + '</li>'; }
+      html += '</ul>';
+      box.innerHTML = html;
+    } else {
+      box.classList.add('hidden');
+      box.innerHTML = '';
+    }
+  }
+
+  function copyJSON(){
+    var text = document.getElementById('json-preview').textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        flashMsg('JSON copiado!');
+      }).catch(function(){
+        flashMsg('não foi possível copiar automaticamente.');
+      });
+    } else {
+      flashMsg('selecione e copie manualmente.');
+    }
+  }
+
+  function downloadJSON(){
+    var text = document.getElementById('json-preview').textContent;
+    var blob = new Blob([text], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'correcao.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    flashMsg('correcao.json baixado!');
+  }
+
+  /* ============ import (JSON -> DOM) ============ */
+
+  function loadFromJSON(obj){
+    document.getElementById('file-tabs-list').innerHTML = '';
+    document.getElementById('file-panels').innerHTML = '';
+    fileSeq = 0;
+
+    document.getElementById('description-field').value = obj.description || '';
+
+    var files = Array.isArray(obj.files) ? obj.files : Object.keys(obj).filter(function(k){ return k !== 'files' && k !== 'description'; });
+
+    files.forEach(function(fname){
+      var data = obj[fname] || {};
+      var pair = createFileTabAndPanel(fname);
+      document.getElementById('file-tabs-list').appendChild(pair.tab);
+      document.getElementById('file-panels').appendChild(pair.panel);
+      var panel = pair.panel;
+
+      if(Array.isArray(data.CLI)){
+        panel.querySelector('.toggle-cli').checked = true;
+        panel.querySelector('.block-cli').classList.remove('hidden');
+        var cliBody = panel.querySelector('.cli-rows');
+        data.CLI.forEach(function(item){
+          var row = createSimpleRow('input', 'expected');
+          row.querySelector('.f-input').value = item.input != null ? item.input : '';
+          row.querySelector('.f-expected').value = item.expected != null ? item.expected : '';
+          row.querySelector('.f-info').value = item.info != null ? item.info : '';
+          cliBody.appendChild(row);
+        });
+      }
+
+      if(data.STRUCTURE){
+        if(Array.isArray(data.STRUCTURE.FUNCTIONS)){
+          panel.querySelector('.toggle-functions').checked = true;
+          panel.querySelector('.block-functions').classList.remove('hidden');
+          var funcList = panel.querySelector('.functions-list');
+          data.STRUCTURE.FUNCTIONS.forEach(function(fn){
+            var card = createFuncCard();
+            card.querySelector('.func-name').value = fn.name || '';
+            var rowsBody = card.querySelector('.runs-rows');
+            (fn.runs || []).forEach(function(run){
+              var rr = createRunRow();
+              var tb = rr.querySelector('.tagbox');
+              (run.input || []).forEach(function(v){ addTagToBox(tb, v); });
+              rr.querySelector('.f-expected').value = run.expected != null ? run.expected : '';
+              rr.querySelector('.f-info').value = run.info != null ? run.info : '';
+              rowsBody.appendChild(rr);
+            });
+            funcList.appendChild(card);
+          });
+        }
+        if(Array.isArray(data.STRUCTURE.CLASSES)){
+          panel.querySelector('.toggle-classes').checked = true;
+          panel.querySelector('.block-classes').classList.remove('hidden');
+          var classList = panel.querySelector('.classes-list');
+          data.STRUCTURE.CLASSES.forEach(function(cls){
+            var card = createClassCard();
+            card.querySelector('.class-name').value = cls.name || '';
+            if(cls.initialized){
+              card.querySelector('.class-initialized').checked = true;
+              card.querySelector('.initializer-box').classList.remove('hidden');
+              var itb = card.querySelector('.initializer-tagbox');
+              var args = (cls.initializer && cls.initializer.args) || [];
+              args.forEach(function(v){ addTagToBox(itb, v); });
+              card.querySelector('.initializer-info').value = (cls.initializer && cls.initializer.info) || '';
+            }
+            var methodsBody = card.querySelector('.methods-rows');
+            (cls.methods || []).forEach(function(m){
+              var mr = createMethodRow();
+              mr.querySelector('.method-name').value = m.name || '';
+              mr.querySelector('.method-static').checked = !!m.static;
+              var tb = mr.querySelector('.tagbox');
+              (m.input || []).forEach(function(v){ addTagToBox(tb, v); });
+              mr.querySelector('.f-expected').value = m.expected != null ? m.expected : '';
+              mr.querySelector('.f-info').value = m.info != null ? m.info : '';
+              methodsBody.appendChild(mr);
+            });
+            classList.appendChild(card);
+          });
+        }
+      }
+
+      if(Array.isArray(data.INPUTS)){
+        panel.querySelector('.toggle-inputs').checked = true;
+        panel.querySelector('.block-inputs').classList.remove('hidden');
+        var inputsBody = panel.querySelector('.inputs-rows');
+        data.INPUTS.forEach(function(item){
+          var row = createSimpleRow('input', 'expected');
+          row.querySelector('.f-input').value = item.input != null ? item.input : '';
+          row.querySelector('.f-expected').value = item.expected != null ? item.expected : '';
+          row.querySelector('.f-info').value = item.info != null ? item.info : '';
+          inputsBody.appendChild(row);
+        });
+      }
+
+      if(Array.isArray(data.SEQUENCE_INPUTS)){
+        panel.querySelector('.toggle-seq').checked = true;
+        panel.querySelector('.block-seq').classList.remove('hidden');
+        var seqBody = panel.querySelector('.seq-rows');
+        data.SEQUENCE_INPUTS.forEach(function(item){
+          var row = createSeqRow();
+          var inTb = row.querySelector('.seq-input-tagbox');
+          (item.input || []).forEach(function(v){ addTagToBox(inTb, v); });
+          var expTb = row.querySelector('.seq-expected-tagbox');
+          (item.expected || []).forEach(function(v){ addTagToBox(expTb, v); });
+          row.querySelector('.f-info').value = item.info != null ? item.info : '';
+          seqBody.appendChild(row);
+        });
+      }
+    });
+
+    var firstTab = document.querySelector('.file-tab');
+    if(firstTab) activateTab(firstTab);
+    refreshPreview();
+  }
+
+  /* ============ event delegation ============ */
+
+  var app = document.getElementById('app');
+
+  app.addEventListener('click', function(e){
+    var tab = e.target.closest ? e.target.closest('.file-tab') : null;
+    if(tab && !e.target.closest('.file-tab-close') && e.target.tagName !== 'INPUT'){
+      activateTab(tab);
+    } else if(tab && e.target.tagName === 'INPUT'){
+      activateTab(tab);
+    }
+
+    var btn = e.target.closest ? e.target.closest('[data-action]') : null;
+    if(!btn) return;
+    var action = btn.dataset.action;
+
+    switch(action){
+      case 'add-file':
+        addFile();
+        return;
+      case 'remove-file':
+        removeFile(btn.closest('.file-tab'));
+        return;
+      case 'add-cli-row':
+        btn.closest('.file-panel').querySelector('.cli-rows').appendChild(createSimpleRow('input', 'expected'));
+        break;
+      case 'add-inputs-row':
+        btn.closest('.file-panel').querySelector('.inputs-rows').appendChild(createSimpleRow('input', 'expected'));
+        break;
+      case 'add-seq-row':
+        btn.closest('.file-panel').querySelector('.seq-rows').appendChild(createSeqRow());
+        break;
+      case 'add-func':
+        btn.closest('.file-panel').querySelector('.functions-list').appendChild(createFuncCard());
+        break;
+      case 'remove-func':
+        btn.closest('.func-card').remove();
+        break;
+      case 'add-run':
+        btn.closest('.func-card').querySelector('.runs-rows').appendChild(createRunRow());
+        break;
+      case 'add-class':
+        btn.closest('.file-panel').querySelector('.classes-list').appendChild(createClassCard());
+        break;
+      case 'remove-class':
+        btn.closest('.class-card').remove();
+        break;
+      case 'add-method':
+        btn.closest('.class-card').querySelector('.methods-rows').appendChild(createMethodRow());
+        break;
+      case 'remove-row':
+        btn.closest('tr').remove();
+        break;
+      case 'chip-remove':
+        btn.closest('.chip').remove();
+        break;
+      case 'copy-json':
+        copyJSON();
+        return;
+      case 'download-json':
+        downloadJSON();
+        return;
+      case 'import-json':
+        document.getElementById('import-file-input').click();
+        return;
+      case 'reset-all':
+        if(confirm('Isso vai apagar tudo que foi preenchido. Continuar?')){
+          document.getElementById('file-tabs-list').innerHTML = '';
+          document.getElementById('file-panels').innerHTML = '';
+          document.getElementById('description-field').value = '';
+          fileSeq = 0;
+          addFile();
+        }
+        return;
+      default:
+        break;
+    }
+    refreshPreview();
+  });
+
+  app.addEventListener('change', function(e){
+    if(e.target.matches && e.target.matches('.toggles-row input[type=checkbox]')){
+      var cb = e.target;
+      var panel = cb.closest('.file-panel');
+      var target = panel.querySelector(cb.dataset.target);
+      target.classList.toggle('hidden', !cb.checked);
+    }
+    if(e.target.matches && e.target.matches('.init-toggle')){
+      var card = e.target.closest('.class-card');
+      card.querySelector('.initializer-box').classList.toggle('hidden', !e.target.checked);
+    }
+    refreshPreview();
+  });
+
+  app.addEventListener('input', function(e){
+    if(e.target.matches && e.target.matches('.tag-entry')) return;
+    refreshPreview();
+  });
+
+  app.addEventListener('keydown', function(e){
+    if(!(e.target.matches && e.target.matches('.tag-entry'))) return;
+    if(e.key === 'Enter' || e.key === ','){
+      e.preventDefault();
+      var val = e.target.value.trim();
+      if(val){
+        e.target.insertAdjacentElement('beforebegin', makeChip(val));
+        e.target.value = '';
+        refreshPreview();
+      }
+    } else if(e.key === 'Backspace' && e.target.value === ''){
+      var wrap = e.target.closest('.tagbox');
+      var chips = wrap.querySelectorAll('.chip');
+      if(chips.length){
+        chips[chips.length - 1].remove();
+        refreshPreview();
+      }
+    }
+  });
+
+  document.getElementById('import-file-input').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var obj = JSON.parse(reader.result);
+        loadFromJSON(obj);
+        flashMsg('correcao.json carregado!');
+      } catch(err){
+        alert('Não foi possível ler esse JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  /* ============ init ============ */
+  addFile('arquivo1.py');
+  refreshPreview();
+
+})();
+</script>
+</body>
+</html>
