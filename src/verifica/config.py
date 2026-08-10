@@ -1,18 +1,9 @@
 from platformdirs import user_config_dir
 from importlib.metadata import version, PackageNotFoundError
-from colorama import init
 from time import time
 import json
-import sys
 import os
 
-def setup_colors():
-    if not sys.stdout.isatty():
-        init(strip=True, convert=False)
-        return False
-    
-    init(autoreset=True)
-    return True
 
 class Config:
     _instance = None
@@ -26,7 +17,6 @@ class Config:
         if hasattr(self, "_initialized"):
             return
         self._initialized = True
-        self.enviroment_supports_colors = setup_colors()
 
         config_dir = user_config_dir("verifica")
         os.makedirs(config_dir, exist_ok=True)

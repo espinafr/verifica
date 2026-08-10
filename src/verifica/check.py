@@ -7,7 +7,6 @@ import sys
 from types import SimpleNamespace
 
 from . import imports_tester
-from .config import settings
 
 class Checker:
 
@@ -182,12 +181,10 @@ class Checker:
         :rtype: str
         """
         colors = {
-            True: Fore.GREEN if settings.enviroment_supports_colors else "",
-            False: Fore.RED if settings.enviroment_supports_colors else "",
-            "bold": Style.BRIGHT if settings.enviroment_supports_colors else "",
-            "reset": Style.RESET_ALL if settings.enviroment_supports_colors else ""
+            True: Fore.GREEN,
+            False: Fore.RED
         }
-        return f"{colors[result]}{colors['bold']}{':)' if result else ':('}{colors['reset']} {colors[result]}{info}{colors['reset']}"
+        return f"{colors[result]}{Style.BRIGHT}{':)' if result else ':('}{Style.RESET_ALL} {colors[result]}{info}{Style.RESET_ALL}"
 
     def run_roadmap(self) -> list:
         """Executa os testes do roadmap e retorna uma lista de resultados
