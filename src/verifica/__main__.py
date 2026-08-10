@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from colorama import init
 import logging
 import sys
 
@@ -12,6 +13,7 @@ logging.basicConfig(
     format='%(levelname)s - %(message)s',
     handlers=[logging.FileHandler(f'{settings.config_dir}/app.log', mode='w', encoding='utf-8'), logging.StreamHandler(stream=sys.stdout)]
 )
+init(autoreset=True)
 
 def main():
     parser = argparse.ArgumentParser(description="Uma ferramenta simples para correção de atividades em python via CLI.", add_help=False)
