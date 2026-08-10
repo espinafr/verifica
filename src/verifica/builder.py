@@ -220,11 +220,7 @@ class FileBuilder(Controller):
                 info = input(Controller.optional_text("Descrição da função: "))
                 if info.strip() != "":
                     current_function["info"] = info
-
-                
-
-            if current_function[0].strip().lower() != "s":
-                break
+        
         
 
     def create_cli(self):
