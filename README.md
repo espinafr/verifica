@@ -54,7 +54,7 @@ pip install dist/{NOME DO ARQUIVO GERADO}
 
 ## Reconhecimentos
 
-Veja o arquivo [ACKNOWLEDGEMENTS](https://github.com/espinafr/verifica/blob/master/ACKNOWLEDGEMENTS.md)
+Veja o arquivo [ACKNOWLEDGEMENTS](https://github.com/espinafr/verifica/blob/master/ACKNOWLEDGEMENTS.md).
 
 ## Licença
 
