@@ -8,9 +8,6 @@
                 <td align="right"><a href="https://github.com/espinafr/verifica/issues/new?template=denúncia-de-bug.yml">Reportar bug</a></td>
             </tr>
             <tr>
-                <td colspan="2" align="center"><a href="https://espinafr.github.io/verifica">Gerador <code>correcao.json</code></a></td>
-            </tr>
-            <tr>
                 <td colspan="2" align="center"><a href="https://github.com/espinafr/verifica/tree/master/docs">Como configurar</a></td>
             </tr>
         </tbody>

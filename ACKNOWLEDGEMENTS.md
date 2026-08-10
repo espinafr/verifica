@@ -8,9 +8,8 @@ Este projeto foi desenvolvido com o propósito de facilitar a rotina de estudant
 ## Desenvolvimento e Uso de IA
 Em alinhamento com práticas de transparência e integridade no desenvolvimento:
 * **Núcleo do Projeto (CLI)**: Desenvolvido inteiramente por mim, utilizando ferramentas de Inteligência Artificial de forma pontual para depuração, revisão de código e consultas rápidas.
-* **Gerador de JSON**: Desenvolvida com assistência significativa de ferramentas de IA para acelerar a prototipagem e lógica.
 
 ## Ferramentas e Bibliotecas
 * **[Python Build](https://build.pypa.io)**: Utilizado para o empacotamento e distribuição do projeto no PyPI.
-* **[Colorama](https://github.com/tartley/colorama)**: Utilizado lidar com cores no terminal.
+* **[Colorama](https://github.com/tartley/colorama)**: Utilizado para lidar com cores no terminal.
 * **[Platformdirs](https://platformdirs.readthedocs.io/)**: Utilizado para salvar arquivos de configuração.

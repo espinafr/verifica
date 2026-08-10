@@ -3,8 +3,6 @@ Arquivos de correção são listas com os comportamentos esperados de um exercí
 
 Esses arquivos devem seguir uma estrutura JSON rígida. Qualquer desvio pode fazer a ferramenta considerar o arquivo inválido e interromper a execução.
 
-Precisa de ajuda configurando seu arquivo de correção? [Use o gerador](https://espinafr.github.io/verifica).
-
 <details>
     <summary><strong>Sumário</strong></summary>
     <ol>
