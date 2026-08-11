@@ -39,13 +39,8 @@ class Config:
                 return {}
 
     def __check_config_state(self):
-        try:
-            current_version = version("verifica")
-        except PackageNotFoundError:
-            current_version = f"indev-{time()}"
-
         defaultConfig = {
-            "version": current_version,
+            "version": self.get_version(),
             "url": "https://raw.githubusercontent.com",
             "answers_file_name": "correcao.json"
         }
@@ -56,6 +51,13 @@ class Config:
         else:
             if current_config.get("version") != defaultConfig.get("version"):
                 self.update_config(defaultConfig, defaultConfig.get("version"))
+
+    def get_version(self):
+        try:
+            __version__  = version("verifica")
+        except PackageNotFoundError:
+            __version__  = f"indev-{time()}"
+        return __version__
 
     def update_config(self, new_data: dict, version: str = None):
         current_config = self.__read_keys()
