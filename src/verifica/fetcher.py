@@ -68,7 +68,14 @@ class Fetcher:
         if not self.file:
             raise ValueError("o arquivo de correção não existe")
 
-        return json.loads(self.get_content())
+        try:
+            decoded = json.loads(self.get_content())
+        except json.JSONDecodeError as error:
+            self.logger.error(f"Falha ao decodificar o arquivo de correção '{self.exercise}': {error}")
+            raise RuntimeError(f"Falha ao decodificar o arquivo de correção '{self.exercise}'") from error
+
+        return decoded
+
 
     def cleanup(self):
         if self.file != None:

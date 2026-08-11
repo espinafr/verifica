@@ -69,7 +69,11 @@ def main():
             logging.error(f"Não foi possível localizar o arquivo de correção em '{args.atividade}'")
             sys.exit(1)
 
-    decoded_answers = answers.get_decoded_json()
+    try:
+        decoded_answers = answers.get_decoded_json()
+    except Exception as _:
+        sys.exit(1)
+
     answers.cleanup()
 
     checker = Checker(args.files, decoded_answers)
