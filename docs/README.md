@@ -17,7 +17,6 @@ Esses arquivos devem seguir uma estrutura JSON rígida. Qualquer desvio pode faz
                     <li><a href="#classes">CLASSES</a></li>
                 </ul>
                 <li><a href="#3-inputs">3. INPUTS</a></li>
-                <li><a href="#4-sequence_inputs">4. SEQUENCE_INPUTS</a></li>
             </ul>
         </li>
         <li><a href="#regras-importantes">Regras importantes</a></li>
@@ -169,15 +168,15 @@ Exemplo:
 ```
 
 ### 3. INPUTS
-Usado para testar a leitura de entrada simples pelo programa.
+Usado para testar a leitura de entrada pelo programa. Os valores esperados e input podem ser strings ou listas no caso de múltipls inputs e saídas.
 
 Cada item deve ter:
 
-- `input`: texto enviado ao programa via stdin
-- `expected`: saída esperada
+- `input`: texto enviado ao programa via stdin (lista ou string)
+- `expected`: saída esperada (lista ou string)
 - `info`: descrição opcional
 
-Exemplo:
+Exemplos:
 
 ```json
 "arquivo.py": {
@@ -190,20 +189,9 @@ Exemplo:
 }
 ```
 
-### 4. SEQUENCE_INPUTS
-Usado para testar múltiplas entradas em sequência.
-
-Cada item deve ter:
-
-- `input`: lista de entradas enviadas ao programa, uma após a outra
-- `expected`: lista de saídas esperadas
-- `info`: descrição opcional
-
-Exemplo:
-
 ```json
 "arquivo.py": {
-    "SEQUENCE_INPUTS": [
+    "INPUTS": [
     {
         "input": ["amora", "morango", "cereja"],
         "expected": ["Hmmm, também gosto de amora, morango e cereja!"]
@@ -213,7 +201,7 @@ Exemplo:
 ```
 
 ## Regras importantes
-- Os nomes das chaves devem ser exatamente como acima: `files`, `description`, `CLI`, `STRUCTURE`, `FUNCTIONS`, `CLASSES`, `INPUTS` e `SEQUENCE_INPUTS`.
+- Os nomes das chaves devem ser exatamente como acima: `files`, `description`, `CLI`, `STRUCTURE`, `FUNCTIONS`, `CLASSES` e `INPUTS`
 - A estrutura do JSON deve respeitar a ordem esperada pelo validador do projeto.
 - Cada arquivo listado em `files` deve ter pelo menos um bloco de verificação.
 - Os campos `input` e `expected` são obrigatórios nos itens de teste e `info` é opcional.

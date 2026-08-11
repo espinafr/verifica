@@ -1,12 +1,16 @@
-from pathlib import Path
 from colorama import Style, Fore
 from functools import wraps
+from pathlib import Path
 import subprocess
 import json
+import sys
 import os
 
-from .tui import TUI
+from .tui import TUI, ANSI_PATTERN
 from .config import settings
+
+# Código ANSI para limpar a linha atual no terminal
+CLEAR_LINE = "\r\033[K"
 
 class Controller:
     @staticmethod
@@ -25,17 +29,29 @@ class Controller:
         return wrapper
 
 
-    def sequential_question(func):
+    def loop_breaker(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            answers = []
-            while True:
-                result = func(*args, **kwargs)
-                if result.strip() != "":
-                    answers.append(result)
-                else:
-                    return answers
+            try:
+                return func(*args, **kwargs)
+            except KeyboardInterrupt:
+                return None
         return wrapper
+
+
+    def sequential_question(input_text):
+        answers = []
+        try:
+            while True:
+                result = input(input_text)
+                answers.append(result)
+
+                # Altera a linha anterior para explicitar que foi salvo
+                sys.stdout.write("\033[F\033[K")
+                sys.stdout.flush()
+                print(f"{Fore.GREEN}{ANSI_PATTERN.sub('', input_text)}{result}{Style.RESET_ALL}")
+        except KeyboardInterrupt:
+            return answers
 
 
     def required_question(func):
@@ -75,8 +91,7 @@ class FileBuilder(Controller):
             Selector("Classe", self.create_classes),
             Selector("Função", self.create_functions),
             Selector("CLI", self.create_cli),
-            Selector("Input", self.create_inputs),
-            Selector("Input sequencial", self.create_sequence_inputs)
+            Selector("Inputs", self.create_inputs),
         ]
         self.current_file = {}
 
@@ -84,7 +99,7 @@ class FileBuilder(Controller):
     @Controller.clear_terminal
     def show_selector(self):
         if not hasattr(self, 'tui'):
-            self.tui = TUI([self.file, {"":f"Selecione o tipo de parâmetro que você quer analisar para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}. Digite o número correspondente e aperte ENTER."}, {}], max_line=50)
+            self.tui = TUI([self.file, {"":f"Selecione o tipo de funcionalidade que você quer testar no arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}. Digite o número correspondente e aperte ENTER."}, {}], max_line=50)
 
         for index, selector in enumerate(self.selectors):
             self.tui.contents[2][f"{Style.BRIGHT}{Fore.CYAN}[{index + 1}]"] = f"{Fore.GREEN if selector.selected else Fore.WHITE}{selector.name}"
@@ -158,11 +173,11 @@ class FileBuilder(Controller):
                 current_class["initializer"] = {}
                 current_class["initialized"] = True
                 while True:
-                    print("Digite os parâmetros do método __init__ (um por vez). Para parar, aperte ENTER sem digitar nada: ")
-                    inputs = Controller.sequential_question(input)(Controller.optional_text("> "))
+                    print(f"Digite os parâmetros do método __init__ (um por vez). {Style.DIM}Aperte CTRL-C para parar.")
+                    inputs = Controller.sequential_question(Controller.optional_text("> "))
                     current_class["initializer"]["input"] = inputs if inputs else []
 
-                    class_info = input(Controller.optional_text("Descrição da validação (instancialização da classe): "))
+                    class_info = input(Controller.optional_text(f"{CLEAR_LINE}Descrição da validação (instancialização da classe): "))
                     if class_info.strip() != "":
                         current_class["initializer"]["info"] = class_info
                     break
@@ -177,11 +192,11 @@ class FileBuilder(Controller):
                     method_name = Controller.required_question(input)(Controller.required_text("Nome do método: "))
                     method_data["name"] = method_name
 
-                    print("Digite os parâmetros do método (um por vez). Para parar, aperte ENTER sem digitar nada: ")
-                    method_inputs = Controller.sequential_question(input)(Controller.optional_text("> "))
+                    print(f"Digite os parâmetros do método {Style.DIM}Aperte CTRL-C para parar.")
+                    method_inputs = Controller.sequential_question(Controller.optional_text("> "))
                     method_data["input"] = method_inputs if method_inputs else []
 
-                    is_static = Controller.required_question(input)(Controller.required_text("O método é estático? (s/n): "))
+                    is_static = Controller.required_question(input)(Controller.required_text(f"{CLEAR_LINE}O método é estático? (s/n): "))
                     method_data["static"] = True if is_static.strip()[0].lower() == "s" else False
 
                     expected_output = input(Controller.optional_text("Output esperado: "))
@@ -219,11 +234,11 @@ class FileBuilder(Controller):
             while True:
                 current_run = {}
 
-                print("Digite os inputs necessários para testar a função. Para parar, aperte ENTER sem digitar nada.")
-                inputs = Controller.sequential_question(input)(Controller.optional_text("> "))
+                print(f"Digite os inputs necessários para testar a função. {Style.DIM}Aperte CTRL-C para parar.")
+                inputs = Controller.sequential_question(Controller.optional_text("> "))
                 current_run["input"] = inputs if inputs else []
 
-                expected = input(Controller.optional_text("Output esperado: "))
+                expected = input(Controller.optional_text(f"{CLEAR_LINE}Output esperado: "))
                 current_run["expected"] = expected if expected else ""
 
                 info = input(Controller.optional_text("Descrição da validação: "))
@@ -269,48 +284,25 @@ class FileBuilder(Controller):
 
     @Controller.clear_terminal
     def create_inputs(self):
+        print(f"Iniciando registro de inputs para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
         self.current_file["INPUTS"] = []
-        print(f"Iniciando registro de input simples para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
-        while True:
-            current_input = {}
-            text_input = input(Controller.optional_text("Input: "))
-            current_input["input"] = text_input
-
-            expected = input(Controller.optional_text("Expected Output: "))
-            current_input["expected"] = expected
-
-            info = input(Controller.optional_text("Descrição da validação: "))
-            if info.strip() != "":
-                current_input["info"] = info
-
-            self.current_file["INPUTS"].append(current_input)
-            print(f"{Style.BRIGHT}{Fore.CYAN}Input registrado com sucesso!")
-            new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outro input simples? (s/n): "))
-            if new_run.strip()[0].lower() != "s":
-                break
-
-
-    @Controller.clear_terminal
-    def create_sequence_inputs(self):
-        print(f"Iniciando registro de inputs sequenciais para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
-        self.current_file["SEQUENCE_INPUTS"] = []
         while True:
             current_seqinput = {}
-            print("Aperte ENTER sem digitar nada para parar de registrar inputs.")
-            inputs = Controller.sequential_question(input)(Controller.optional_text("> "))
+            print(f"Digite os inputs. {Style.DIM}Aperte CTRL-C para parar.")
+            inputs = Controller.sequential_question(Controller.optional_text("> "))
             current_seqinput["input"] = inputs if inputs else []
 
-            print("Digite os outputs esperados. Aperte ENTER sem digitar nada para parar.")
-            expected = Controller.sequential_question(input)(Controller.optional_text("> "))
+            print(f"{CLEAR_LINE}Digite os outputs esperados. {Style.DIM}Aperte CTRL-C para parar.")
+            expected = Controller.sequential_question(Controller.optional_text("> "))
             current_seqinput["expected"] = expected if expected else []
 
-            info = input(Controller.optional_text("Descrição da validação: "))
+            info = input(Controller.optional_text(f"{CLEAR_LINE}Descrição da validação: "))
             if info.strip() != "":
                 current_seqinput["info"] = info
 
-            self.current_file["SEQUENCE_INPUTS"].append(current_seqinput)
-            print(f"{Style.BRIGHT}{Fore.CYAN}Input sequencial registrado com sucesso!")
-            new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outro input sequencial? (s/n): "))
+            self.current_file["INPUTS"].append(current_seqinput)
+            print(f"{Style.BRIGHT}{Fore.CYAN}Input registrado com sucesso!")
+            new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outro input? (s/n): "))
             if new_run.strip()[0].lower() != "s":
                 break
 
@@ -329,7 +321,7 @@ class FileBuilder(Controller):
 
 
     def show_progress(self):
-        TUI([f"{Fore.CYAN}{self.file}", *({f"{Fore.CYAN}[{index+1}]": f"{Fore.GREEN}{key}{Style.RESET_ALL}\n{self.current_file[key]}"} for index, key in enumerate(self.current_file.keys()))], max_line=50).show()
+        TUI([f"{Fore.CYAN}{self.file}", *({f"{Fore.CYAN}[{index+1}]": f"{Fore.GREEN}{key}{Style.RESET_ALL} {self.current_file[key]}"} for index, key in enumerate(self.current_file.keys()))], max_line=50).show()
     
 
     def start(self):
@@ -347,7 +339,7 @@ class Builder:
             f"{Style.BRIGHT}{Fore.RED}Informações importantes:": "", 
             f"{Style.BRIGHT}{Fore.CYAN}1.": "Leia atentamente a todos os avisos e instruções antes de prosseguir.", 
             f"{Style.BRIGHT}{Fore.CYAN}2.": f"Inputs {Fore.RED}VERMELHOS{Style.RESET_ALL} são obrigatórios, enquanto inputs {Fore.YELLOW}AMARELOS{Style.RESET_ALL} são opcionais.", 
-            f"{Style.BRIGHT}{Fore.CYAN}3.": f"Alguns inputs exigem uma sequência de informções. Esses serão indicados com {Fore.GREEN}setas coloridas (>){Style.RESET_ALL}. Quando quiser parar de adicionar informações, basta apertar {Style.BRIGHT}ENTER{Style.RESET_ALL} sem digitar nada enquanto a seta estiver {Fore.YELLOW}AMARELA (>){Style.RESET_ALL}.",
+            f"{Style.BRIGHT}{Fore.CYAN}3.": f"Alguns inputs exigem uma sequência de informções. Esses serão indicados com {Style.BRIGHT}setas (>){Style.RESET_ALL}.\nPara esse tipo de input, digite cada informação e aperte ENTER para confirmar. Inputs registrados com sucesso ficarão {Fore.GREEN}verdes{Style.RESET_ALL}.\nPara parar de adicionar informações, aperte {Style.BRIGHT}CTRL-C{Style.RESET_ALL} (salvo em situações que explicitamente indiquem o contrário).",
         }
     ]
 
@@ -384,10 +376,20 @@ class Builder:
                 filename += ".py"
             return filename
 
-        print(f"Vamos começar nomeando os arquivos que você quer analisar. O primeiro arquivo é obrigatório, então digite o nome dele e aperte ENTER.\n{Fore.YELLOW}OBSERVAÇÃO: A extensão .py será adicionada automaticamente.")
+        def get_extra_files() -> list:
+            extra_files = []
+            while True:
+                extra_file = input(f"{Controller.optional_text('> ')}")
+                if extra_file.strip() != "":
+                    extra_files.append(format_filename(extra_file))
+                else:
+                    break
+            return extra_files
+
+        print(f"\nNomeie os arquivos que você quer analisar. O primeiro arquivo é obrigatório.\n{Fore.YELLOW}OBSERVAÇÃO: A extensão .py será adicionada automaticamente.")
         files.append(format_filename(Controller.required_question(input)(f"{Controller.required_text('Nome do primeiro arquivo: ')}")))
-        print("Perfeito! Agora, se quiser adicionar mais arquivos, digite o nome deles um por vez. Para parar aperte ENTER sem digitar nada.")
-        files.extend(list(map(format_filename, Controller.sequential_question(input)(f"{Controller.optional_text('> ')}"))))
+        print(f"\nSe quiser adicionar mais arquivos, digite o nome deles um por vez.\n{Style.DIM}Para parar aperte ENTER sem digitar nada.")
+        files.extend(get_extra_files())
         
         return list(dict.fromkeys(files))
 
@@ -413,19 +415,24 @@ class Builder:
         print(f"Arquivo salvo em {file_path}.")
 
     def start(self):
-        self.show_info()
-
-        files = self.get_files()
-        self.add_block("files", files)
-        self.show_progress("Arquivos selecionados: ", f"{'; '.join(files)}.")
-        self.confirm_yield()
-
-        Controller.clear_command()
-        for file in files:
-            fb = FileBuilder(file)
-            fb.start()
-            self.add_block(file, fb.current_file)
+        try:
+            self.show_info()
 
             self.confirm_yield()
+            files = self.get_files()
+            self.add_block("files", files)
+            self.show_progress("Arquivos selecionados: ", f"{'; '.join(files)}.")
+            self.confirm_yield()
 
-        self.save_file()
+            Controller.clear_command()
+            for file in files:
+                fb = FileBuilder(file)
+                fb.start()
+                self.add_block(file, fb.current_file)
+
+                self.confirm_yield()
+
+            self.save_file()
+        except KeyboardInterrupt:
+            Controller.clear_command()
+            print(f"{Fore.RED}Operação cancelada pelo usuário. Nenhum arquivo foi salvo.")

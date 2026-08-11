@@ -66,12 +66,6 @@
                 "input": "ola tudo bem",
                 "expected": "sim senhor"
             }
-        ],
-        "SEQUENCE_INPUTS":[
-            {
-                "input": ["ola", "ola", "ola"],
-                "expected": ["ei", "ei", "ei"]
-            }
         ]
     },
     "file2.py": {

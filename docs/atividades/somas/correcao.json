@@ -3,7 +3,7 @@
         "somas.py"
     ],
     "somas.py": {
-        "SEQUENCE_INPUTS": [
+        "INPUTS": [
             {
                 "input": [
                     "10",

@@ -9,29 +9,43 @@ from types import SimpleNamespace
 from . import imports_tester
 
 class Checker:
+    """Classe responsável por validar exercícios baseado em um arquivo de correção"""
 
-    def __init__(self, exercises_path: str, answers: dict):
+    def __init__(self, exercises_path: str, answers: dict) -> None:
         """Atribui os parâmetros passados para o objeto
-        
-        :param exercises_path: Caminho da pasta com arquivos do exercício
-        :param answers: Dicionário de respostas no formato apropriado
+
+        Args:
+            exercises_path (str): Caminho da pasta com arquivos do exercício
+            answers (dict): Dicionário de respostas no formato apropriado
         """
         self.exercises_path = exercises_path
         self.answers = answers
         self.roadmap = []
         self.logger = logging.getLogger(__name__)
+
     
     def __file_exists(self, file_path: str) -> bool:
         """Checa se um arquivo existe em determinado caminho
 
-        :param file_path: Caminho do arquivo
-        :returns: Verdadeiro caso exista
-        :rtype: bool
+        Args:
+            file_path (str): Caminho do arquivo
+
+        Returns:
+            bool: Booleano indicando se o arquivo existe
         """
         return Path(self.exercises_path / file_path).is_file()
 
+
     def setup_roadmap(self) -> bool:
-        """Popula a lista roadmap com uma sequência de testes a serem realizados"""
+        """Popula a lista roadmap com uma sequência de testes a serem realizados
+
+        Raises:
+            ValueError: Arquivo de correção não possui características a serem testadas
+            ValueError: Característica desconhecida no arquivo de correção
+
+        Returns:
+            bool: Booleano indicando se o roadmap foi configurado com sucesso
+        """
         try:
             self.logger.info(f"Configurando roadmap")
             for file in self.answers["files"]:
@@ -106,21 +120,22 @@ class Checker:
                                         "args": [currentFunction, run["input"], run["expected"]],
                                         "action": imports_tester.FunctionTester.test
                                     })
-                    elif check_step == "INPUTS":
-                        for input_info in subsequent_steps:
-                            self.logger.info(f"ADICIONANDO INPUT {input_info['input']}")
-                            self.roadmap.append({
-                                "info": input_info.get("info", f"input '{input_info['input']}' retorna '{input_info['expected']}'"),
-                                "args": [current_file_path, input_info["input"], input_info["expected"]],
-                                "action": self.test_INPUT
-                            })
-                    elif check_step == "SEQUENCE_INPUTS":
+                    elif check_step == "INPUTS" or check_step == "SEQUENCE_INPUTS":
                         for sequence_input_info in subsequent_steps:
-                            self.logger.info(f"ADICIONANDO SEQUENCE_INPUTS {sequence_input_info['input']}")
+                            self.logger.info(f"ADICIONANDO INPUTS {sequence_input_info['input']}")
+
+                            expected = sequence_input_info['expected']
+                            input_data = sequence_input_info['input']
+
+                            if isinstance(expected, str):
+                                expected = [expected]
+                            if isinstance(input_data, str):
+                                input_data = [input_data]
+
                             self.roadmap.append({
-                                "info": sequence_input_info.get("info", f"input '{', '.join(sequence_input_info['input'])}' retorna '{', '.join(sequence_input_info['expected'])}'"),
-                                "args": [current_file_path, sequence_input_info["input"], sequence_input_info["expected"]],
-                                "action": self.test_SEQUENCE_INPUT
+                                "info": sequence_input_info.get("info", f"input '{', '.join(input_data)}' retorna '{', '.join(expected)}'"),
+                                "args": [current_file_path, input_data, expected],
+                                "action": self.test_INPUTS
                             })
                     else:
                         raise ValueError(f"Característica desconhecida '{check_step}' no arquivo de correção")
@@ -136,51 +151,91 @@ class Checker:
 
 
     def test_CLI(self, file_path: str, input_args: list[str], expected_output: str) -> bool:
-        try:
-            result = subprocess.run([sys.executable, file_path] + input_args, capture_output=True, text=True)
-            self.logger.warning(f"Saída do comando '{' '.join(input_args)}': {result.stdout.strip()}")
-            return expected_output in result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            self.logger.warning(f"O script '{input_args[0]}' falhou com o código de saída {e.returncode}")
-            self.logger.warning(f"Detalhes do erro: {e.stderr}")
-            return False
+        """Testa um comando CLI de um programa Python
 
-    def test_INPUT(self, file: str, input_data: str, expected_output: str) -> bool:
+        Args:
+            file_path (str): Caminho do arquivo a ser testado
+            input_data (list[str]): Lista de inputs a serem fornecidos ao programa
+            expected_output (str): Saída esperada
+
+        Returns:
+            bool: Booleano indicando se a saída do programa contém a saída esperada
+        """
         try:
             result = subprocess.run(
-                [sys.executable, file], 
-                input=input_data, 
+                [sys.executable, file_path] + input_args, 
                 capture_output=True, 
                 text=True
             )
-            return expected_output in result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            self.logger.warning(f"A ação do input '{input_data}' falhou com o código de saída {e.returncode}")
-            self.logger.warning(f"Detalhes do erro: {e.stderr}")
-            return False
 
-    def test_SEQUENCE_INPUT(self, file: str, input_data: list[str], expected_output: list[str]) -> bool:
-        try:
-            result = subprocess.run(
-                [sys.executable, file], 
-                input=("\n").join(input_data), 
-                capture_output=True, 
-                text=True
-            )
+            if result.returncode != 0:
+                self.logger.warning(
+                    f"[CLI] O programa terminou com código {result.returncode}"
+                )
+                self.logger.warning(f"[CLI] stderr: {result.stderr}")
+                return False
+
             output = result.stdout.strip()
-            return all(palavra in output for palavra in expected_output)
-        except subprocess.CalledProcessError as e:
-            self.logger.warning(f"A ação do input múltiplo '{input_data}' falhou com o código de saída {e.returncode}")
-            self.logger.warning(f"Detalhes do erro: {e.stderr}")
+            self.logger.debug(f"[CLI] Saída do comando '{' '.join(input_args)}': {output}")
+
+            return expected_output in output
+
+        except Exception as e:
+            self.logger.warning(
+                f"[CLI] Falha ao executar o comando '{file_path} {' '.join(input_args)}': {e}"
+            )
             return False
 
-    def make_result_message(self, result: bool, info: str) -> str:
-        """Gera uma mensagem de resultado formatada com cores
+    def test_INPUTS(self, file_path: str, input_data: list[str], expected_output: list[str]) -> bool:
+        """Testa uma sequência de inputs
 
-        :param result: Resultado do teste
-        :param info: Informação sobre o teste
-        :returns: Mensagem formatada
-        :rtype: str
+        Args:
+            file_path (str): Caminho do arquivo a ser testado
+            input_data (list[str]): Lista de inputs a serem fornecidos ao programa
+            expected_output (list[str]): Lista de saídas esperadas
+
+        Returns:
+            bool: Booleano indicando se a saída do programa contém a saída esperada
+        """
+        try:
+            result = subprocess.run(
+                [sys.executable, file_path],
+                input="\n".join(input_data) + "\n",
+                capture_output=True,
+                text=True
+            )
+
+            if result.returncode != 0:
+                self.logger.warning(
+                    f"[INPUT] O programa terminou com código {result.returncode}"
+                )
+                self.logger.warning(f"[INPUT] stderr: {result.stderr}")
+                return False
+
+            output = result.stdout.strip()
+            self.logger.debug(f"[INPUT] Saída do input: {output}")
+
+            return all(
+                expected in output
+                for expected in expected_output
+            )
+
+        except Exception as e:
+            self.logger.warning(
+                f"[INPUT] Falha ao executar o input '{input_data}': {e}"
+            )
+            return False
+
+    
+    def make_result_message(self, result: bool, info: str) -> str:
+        """Forma uma mensagem de resultado com cores e estilo apropriados
+
+        Args:
+            result (bool): Resultado do teste
+            info (str): Informação sobre o teste
+
+        Returns:
+            str: Mensagem formatada
         """
         colors = {
             True: Fore.GREEN,
@@ -188,11 +243,12 @@ class Checker:
         }
         return f"{colors[result]}{Style.BRIGHT}{':)' if result else ':('}{Style.RESET_ALL} {colors[result]}{info}{Style.RESET_ALL}"
 
+
     def run_roadmap(self) -> list:
         """Executa os testes do roadmap e retorna uma lista de resultados
 
-        :returns: Lista de resultados dos testes
-        :rtype: list
+        Returns:
+            list: Lista de resultados dos testes
         """
         results = []
         for step in self.roadmap:
@@ -207,10 +263,12 @@ class Checker:
 
         return results
 
+    
     def show_results(self, results: list) -> None:
         """Exibe os resultados dos testes no console
 
-        :param results: Lista de resultados dos testes
+        Args:
+            results (list): Lista de resultados dos testes
         """
         if self.answers.get("description"):
             print(f"{self.answers['description']}")
