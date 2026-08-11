@@ -8,7 +8,7 @@
                     "name": "Pessoa",
                     "initialized": true,
                     "initializer": {
-                        "args": ["Théo", 18],
+                        "input": ["Théo", 18],
                         "info": "inicializa a classe"
                     },
                     "methods": [

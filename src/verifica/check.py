@@ -78,7 +78,7 @@ class Checker:
                                 if is_initialized:
                                     self.roadmap.append({
                                         "info": class_info.get("info", f"classe {class_info['name']} pode ser instanciada"),
-                                        "args": [currentClass, *class_info["initializer"]["args"]],
+                                        "args": [currentClass, *class_info["initializer"]["input"]],
                                         "action": imports_tester.ClassTester.initialize_instance
                                     })
                                 for method_info in class_info["methods"]:
