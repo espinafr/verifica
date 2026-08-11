@@ -32,7 +32,12 @@ Por padrão, a ferramenta vai procurar arquivos em https://raw.githubusercontent
 
 Para usar arquivos de correção locais basta executar a ferramenta com a flag  `-l` seguida do caminho do arquivo.
 ```bash
-verifica -l C:\Users\win\Desktop\atividade_input
+verifica -l C:\Users\user\Desktop\atividade_input
+```
+
+Precisa de uma ajuda fazendo seu `correcao.json`? Use o próprio gerador da ferramenta!
+```
+verifica --builder
 ```
 
 ## Estrutura geral
