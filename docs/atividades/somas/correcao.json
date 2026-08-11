@@ -1,0 +1,62 @@
+{
+    "files": [
+        "somas.py"
+    ],
+    "somas.py": {
+        "SEQUENCE_INPUTS": [
+            {
+                "input": [
+                    "10",
+                    "10"
+                ],
+                "expected": [
+                    "20"
+                ],
+                "info": "lida com somas básicas"
+            },
+            {
+                "input": [
+                    "20",
+                    "-10"
+                ],
+                "expected": [
+                    "10"
+                ],
+                "info": "lida com somas com números negativos"
+            },
+            {
+                "input": [
+                    "-30",
+                    "-20"
+                ],
+                "expected": [
+                    "-50"
+                ],
+                "info": "lida com somas negativas"
+            },
+            {
+                "input": [
+                    "10",
+                    "30",
+                    "4"
+                ],
+                "expected": [
+                    "44"
+                ],
+                "info": "lida com múltiplos números"
+            },
+            {
+                "input": [
+                    "-4",
+                    "20",
+                    "-31",
+                    "19",
+                    "-4"
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ]
+    }
+}
