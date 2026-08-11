@@ -127,8 +127,8 @@ Cada classe precisa ter:
 
 - `name`: nome da classe
 - `initialized`: booleano indicando se a classe deve ser instanciada
-- `initializer`: objeto com `args` e `info` opcional, usado quando `initialized` for true
-- `methods`: lista dos métodos esperados
+- `initializer`: objeto com `input` e `info` opcional, usado quando `initialized` for true
+- `methods`: lista opcional dos métodos esperados
 
 Cada método deve ter:
 
@@ -148,7 +148,7 @@ Exemplo:
                 "name": "Pessoa",
                 "initialized": true,
                 "initializer": {
-                    "args": ["Théo", 18]
+                    "input": ["Théo", 18]
                 },
                 "methods": [
                     {
