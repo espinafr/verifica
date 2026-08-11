@@ -15,8 +15,9 @@ body:
       Por favor, forneça as seguintes informações do sistema para nos ajudar a diagnosticar o bug. Por exemplo:
     placeholder: |
       - Sistema operacional: Windows 10
-      - Versão do navegador: Chrome 90.0.4430.212
       - Versão do aplicativo: 1.2.3
+      - Versão do Python: 3.9.X
+      - Versões das dependências: platformdirs==4.11.2, colorama==0.4.6
   validations:
     required: true
 - type: textarea
