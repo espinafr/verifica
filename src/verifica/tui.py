@@ -1,7 +1,7 @@
 from colorama import Style
 import re
 
-# Regex para remover códigos ANSI de cores e formatação
+# Regex para códigos ANSI de cores e formatação
 ANSI_PATTERN = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]")
 
 class TUI:
@@ -47,18 +47,20 @@ class TUI:
     def __create_paragraphs(self, key: str, text: str) -> str:
         if self.max_line >= 1:
             paragraphs = []
-            words = text.split()
-            current_line = ""
+            unformatted_paragraphs = text.split('\n')
 
-            for word in words:
-                if self.visible_len(f"{key}{Style.RESET_ALL} {current_line}") + self.visible_len(word) + 1 <= self.max_line:
-                    current_line += f"{word} "
-                else:
+            for paragraph in unformatted_paragraphs:
+                words = paragraph.split()
+                current_line = ""
+                for word in words:
+                    if self.visible_len(f"{key} {current_line}") + self.visible_len(word) + 1 <= self.max_line:
+                        current_line += f"{word} "
+                    else:
+                        paragraphs.append(current_line.strip())
+                        current_line = f"{word} "
+
+                if current_line:
                     paragraphs.append(current_line.strip())
-                    current_line = f"{word} "
-
-            if current_line:
-                paragraphs.append(current_line.strip())
 
             return '\n'.join(paragraphs)
         return [text]
