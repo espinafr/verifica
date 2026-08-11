@@ -2,6 +2,7 @@ from colorama import Style, Fore
 from functools import wraps
 from pathlib import Path
 import subprocess
+import copy
 import json
 import sys
 import os
@@ -321,6 +322,14 @@ class FileBuilder(Controller):
 
 
     def show_progress(self):
+        if not hasattr(self, 'progress_visualizer'):
+            self.progress_visualizer = copy.deepcopy(self.current_file)
+        visualizer = self.progress_visualizer
+        if "STRUCTURE" in visualizer:
+            for key in visualizer["STRUCTURE"]:
+                visualizer[key] = visualizer["STRUCTURE"][key]
+            del visualizer["STRUCTURE"]
+        
         TUI([f"{Fore.CYAN}{self.file}", *({f"{Fore.CYAN}[{index+1}]": f"{Fore.GREEN}{key}{Style.RESET_ALL} {self.current_file[key]}"} for index, key in enumerate(self.current_file.keys()))], max_line=50).show()
     
 
