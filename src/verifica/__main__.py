@@ -7,6 +7,7 @@ import sys
 from .config import settings
 from .check import Checker
 from .fetcher import Fetcher
+from .builder import Builder
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -26,7 +27,9 @@ def main():
     options.add_argument("-c", "--config", action="store_true", help="Mostra o caminho do arquivo de configuração.")
     options.add_argument("-d", "--debug", action="store_true", help="Ativa o modo debug, mostrando mais informações durante a execução.")
     options.add_argument("-l", "--local", action="store_true", help="Caminho local para a pasta com o arquivo de respostas, caso não queira baixar do github.")
-    
+    options.add_argument("--version", action="store_true", help="Mostra a versão do programa.")
+    options.add_argument("-b", "--builder", action="store_true", help="TUI para criar arquivos de correção de atividades.")  
+
     args = parser.parse_args()
 
     if args.debug:
@@ -35,6 +38,15 @@ def main():
     
     if args.config:
         print(settings.config_path)
+        return
+
+    if args.version:
+        print(settings.get_version())
+        return
+
+    if args.builder:
+        builder = Builder()
+        builder.start()
         return
 
     if not args.atividade:

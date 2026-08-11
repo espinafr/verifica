@@ -69,7 +69,8 @@ class Checker:
                             for class_info in subsequent_steps["CLASSES"]:
                                 self.logger.info(f"ADICIONANDO CLASSE {class_info['name']}")
                                 is_initialized = class_info.get("initialized", False)
-                                currentClass = imports_tester.ClassTester(importedFile, class_info["name"], class_info["methods"], is_initialized)
+                                has_methods = class_info.get("methods", []) != []
+                                currentClass = imports_tester.ClassTester(importedFile, class_info["name"], class_info["methods"] if has_methods else [], is_initialized)
                                 self.roadmap.append({
                                     "info": class_info.get("info", f"classe {class_info['name']} existe e possui os métodos esperados"),
                                     "args": [currentClass],
@@ -81,12 +82,13 @@ class Checker:
                                         "args": [currentClass, *class_info["initializer"]["input"]],
                                         "action": imports_tester.ClassTester.initialize_instance
                                     })
-                                for method_info in class_info["methods"]:
-                                    self.roadmap.append({
-                                        "info": method_info.get("info", f"{method_info['name']}({', '.join(map(str, method_info['input']))}) retorna {method_info['expected']}"),
-                                        "args": [method_info["name"], method_info.get("static", False), method_info["input"], method_info["expected"]],
-                                        "action": currentClass.test_method
-                                    })
+                                if has_methods:
+                                    for method_info in class_info["methods"]:
+                                        self.roadmap.append({
+                                            "info": method_info.get("info", f"{method_info['name']}({', '.join(map(str, method_info['input']))}) retorna {method_info['expected']}"),
+                                            "args": [method_info["name"], method_info.get("static", False), method_info["input"], method_info["expected"]],
+                                            "action": currentClass.test_method
+                                        })
                         if subsequent_steps.get("FUNCTIONS"):
                             self.logger.info(f"FUNÇÕES DETECTADAS")
                             for function_info in subsequent_steps["FUNCTIONS"]:

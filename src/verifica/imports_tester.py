@@ -39,7 +39,7 @@ class Imported:
                 raise ImportError(f"Falha ao importar o módulo '{module_path}'") from e
 
 class ClassTester:
-    def __init__(self, import_info: Imported, class_name: str, methods: list, initialized: bool):
+    def __init__(self, import_info: Imported, class_name: str, methods: list = [], initialized: bool = False):
         self.import_info = import_info
         self.class_name = class_name
         self.methods = methods
