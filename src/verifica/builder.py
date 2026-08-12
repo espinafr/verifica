@@ -342,7 +342,7 @@ class FileBuilder(Controller):
 
 class Builder:
     default_info =[
-        f"{Fore.YELLOW}{Style.BRIGHT}Gerador de {settings.get_config("answers_file_name")}",
+        f"{Fore.YELLOW}{Style.BRIGHT}Gerador de {settings.get_config('answers_file_name')}",
         f"{Style.DIM}Seu progresso vai ficar aqui.",
         {
             f"{Style.BRIGHT}{Fore.RED}Informações importantes:": "", 
