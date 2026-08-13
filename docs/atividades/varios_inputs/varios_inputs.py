@@ -1,5 +1,5 @@
 # Solução do exercício de exemplo
-# espinafr/verifica/master/docs/atividades/many_inputs
+# espinafr/verifica/master/docs/atividades/varios_inputs
 
 answers = []
 for i in range(3):

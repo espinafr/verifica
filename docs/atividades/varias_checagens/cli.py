@@ -1,6 +1,6 @@
 # Arquivo 2
 # Solução do exercício de exemplo
-# espinafr/verifica/master/docs/atividades/multiple_checks
+# espinafr/verifica/master/docs/atividades/varias_checagens
 
 import argparse
 

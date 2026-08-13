@@ -1,7 +1,7 @@
 {
-    "files": ["simple_input.py"],
+    "files": ["input_simples.py"],
     "description": "Exercício de input simples",
-    "simple_input.py": {
+    "input_simples.py": {
         "INPUTS": [
             {
                 "input": "Théo",

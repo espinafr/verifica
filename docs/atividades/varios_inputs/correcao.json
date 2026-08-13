@@ -1,7 +1,7 @@
 {
-    "files": ["many_inputs.py"],
+    "files": ["varios_inputs.py"],
     "description": "Exercício de inputs sequenciais",
-    "many_inputs.py": {
+    "varios_inputs.py": {
         "INPUTS":[
             {
                 "input": ["amora", "morango", "cereja"],
