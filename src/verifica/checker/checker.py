@@ -1,18 +1,18 @@
 from colorama import Fore, Style
 from pathlib import Path
-import subprocess
 import traceback
-import logging
-import sys
 from types import SimpleNamespace
 
-from . import imports_tester
+from .shared import Result, logger
+from .cli import test_CLI
+from .inputs import test_INPUTS
+from .imported import ClassTester, FunctionTester, Imported
 
 class Checker:
     """Classe responsável por validar exercícios baseado em um arquivo de correção"""
 
     def __init__(self, exercises_path: str, answers: dict) -> None:
-        """Atribui os parâmetros passados para o objeto
+        """Atribui os parâmetros passados para a classe e inicializa a lista de roadmap
 
         Args:
             exercises_path (str): Caminho da pasta com arquivos do exercício
@@ -21,7 +21,6 @@ class Checker:
         self.exercises_path = exercises_path
         self.answers = answers
         self.roadmap = []
-        self.logger = logging.getLogger(__name__)
 
     
     def __file_exists(self, file_path: str) -> bool:
@@ -33,7 +32,8 @@ class Checker:
         Returns:
             bool: Booleano indicando se o arquivo existe
         """
-        return Path(self.exercises_path / file_path).is_file()
+        exists = Path(self.exercises_path / file_path).is_file()
+        return Result(exists, "" if exists else f"Arquivo '{file_path}' não encontrado")
 
 
     def setup_roadmap(self) -> bool:
@@ -47,15 +47,15 @@ class Checker:
             bool: Booleano indicando se o roadmap foi configurado com sucesso
         """
         try:
-            self.logger.info(f"Configurando roadmap")
+            logger.info(f"Configurando roadmap")
             for file in self.answers["files"]:
                 current_file_path = Path(self.exercises_path) / file
-                self.logger.info(f"Inicindo detecções para o arquivo '{file}'")
+                logger.info(f"Inicindo detecções para o arquivo '{file}'")
 
                 if len(self.answers[file]) == 0:
                     raise ValueError(f"O arquivo de correção para '{file}' não possui características a serem testadas")
 
-                self.logger.info(file)
+                logger.info(file)
                 self.roadmap.append({
                     "info": f"'{file}' existe",
                     "args": [self, file],
@@ -63,38 +63,38 @@ class Checker:
                 })
 
                 for check_step, subsequent_steps in self.answers[file].items():
-                    self.logger.info(f"CARACTERÍSTICA DETECTADA: {check_step}")
+                    logger.info(f"CARACTERÍSTICA DETECTADA: {check_step}")
                     if check_step == "CLI":
                         for command in subsequent_steps:
-                            self.logger.info(f"ADICIONANDO COMANDO CLI: {file} {command['input']}")
+                            logger.info(f"ADICIONANDO COMANDO CLI: {file} {command['input']}")
                             self.roadmap.append({
                                 "info": command.get("info", f"comando '{command['input']}' retorna '{command['expected']}'"),
-                                "args": [self, current_file_path, command["input"].split(" "), command["expected"]],
-                                "action": Checker.test_CLI
+                                "args": [current_file_path, command["input"].split(" "), command["expected"]],
+                                "action": test_CLI
                             })
                     elif check_step == "STRUCTURE":
                         try:
-                            importedFile = imports_tester.Imported(current_file_path)
+                            importedFile = Imported(current_file_path)
                         except Exception as e:
-                            self.logger.warning(f"Falha ao importar o arquivo '{file}': {e}")
-                            importedFile = SimpleNamespace(module=None, logger=self.logger)
+                            logger.warning(f"Falha ao importar o arquivo '{file}': {e}")
+                            importedFile = SimpleNamespace(module=None, logger=logger)
                         if subsequent_steps.get("CLASSES"):
-                            self.logger.info(f"CLASSES DETECTADAS")
+                            logger.info(f"CLASSES DETECTADAS")
                             for class_info in subsequent_steps["CLASSES"]:
-                                self.logger.info(f"ADICIONANDO CLASSE {class_info['name']}")
+                                logger.info(f"ADICIONANDO CLASSE {class_info['name']}")
                                 is_initialized = class_info.get("initialized", False)
                                 has_methods = class_info.get("methods", []) != []
-                                currentClass = imports_tester.ClassTester(importedFile, class_info["name"], class_info["methods"] if has_methods else [], is_initialized)
+                                currentClass = ClassTester(importedFile, class_info["name"], class_info["methods"] if has_methods else [], is_initialized)
                                 self.roadmap.append({
                                     "info": class_info.get("info", f"classe {class_info['name']} existe e possui os métodos esperados"),
                                     "args": [currentClass],
-                                    "action": imports_tester.ClassTester.get_existance
+                                    "action": ClassTester.get_existance
                                 })
                                 if is_initialized:
                                     self.roadmap.append({
                                         "info": class_info.get("info", f"classe {class_info['name']} pode ser instanciada"),
                                         "args": [currentClass, *class_info["initializer"]["input"]],
-                                        "action": imports_tester.ClassTester.initialize_instance
+                                        "action": ClassTester.initialize_instance
                                     })
                                 if has_methods:
                                     for method_info in class_info["methods"]:
@@ -104,25 +104,25 @@ class Checker:
                                             "action": currentClass.test_method
                                         })
                         if subsequent_steps.get("FUNCTIONS"):
-                            self.logger.info(f"FUNÇÕES DETECTADAS")
+                            logger.info(f"FUNÇÕES DETECTADAS")
                             for function_info in subsequent_steps["FUNCTIONS"]:
-                                self.logger.info(f"ADICIONANDO FUNÇÃO {function_info['name']}")
-                                currentFunction = imports_tester.FunctionTester(importedFile, function_info["name"])
+                                logger.info(f"ADICIONANDO FUNÇÃO {function_info['name']}")
+                                currentFunction = FunctionTester(importedFile, function_info["name"])
                                 self.roadmap.append({
                                     "info": function_info.get("info", f"função {function_info['name']} existe"),
                                     "args": [currentFunction],
-                                    "action": imports_tester.FunctionTester.get_existance
+                                    "action": FunctionTester.get_existance
                                 })
                                 for run in function_info["runs"]:
-                                    self.logger.info(f"ADICIONANDO RUN {function_info['name']}({', '.join(map(str, run['input']))})")
+                                    logger.info(f"ADICIONANDO RUN {function_info['name']}({', '.join(map(str, run['input']))})")
                                     self.roadmap.append({
                                         "info": run.get("info", f"função {function_info['name']}({', '.join(map(str, run['input']))}) retorna {run['expected']}"),
                                         "args": [currentFunction, run["input"], run["expected"]],
-                                        "action": imports_tester.FunctionTester.test
+                                        "action": FunctionTester.test
                                     })
                     elif check_step == "INPUTS" or check_step == "SEQUENCE_INPUTS":
                         for sequence_input_info in subsequent_steps:
-                            self.logger.info(f"ADICIONANDO INPUTS {sequence_input_info['input']}")
+                            logger.info(f"ADICIONANDO INPUTS {sequence_input_info['input']}")
 
                             expected = sequence_input_info['expected']
                             input_data = sequence_input_info['input']
@@ -135,104 +135,26 @@ class Checker:
                             self.roadmap.append({
                                 "info": sequence_input_info.get("info", f"input '{', '.join(input_data)}' retorna '{', '.join(expected)}'"),
                                 "args": [current_file_path, input_data, expected],
-                                "action": self.test_INPUTS
+                                "action": test_INPUTS
                             })
                     else:
                         raise ValueError(f"Característica desconhecida '{check_step}' no arquivo de correção")
         except (ValueError, KeyError) as e:
-            self.logger.error(f"Estrutura do arquivo de correção inválida para o arquivo '{file}'.\nDetalhes: {e}")
+            logger.error(f"Estrutura do arquivo de correção inválida para o arquivo '{file}'.\nDetalhes: {e}")
             return False
         except Exception as e:
-            self.logger.error(f"Erro ao configurar roadmap para o arquivo '{file}'.")
-            self.logger.error(f"Detalhes do erro: {e}\n{traceback.format_exc()}")
+            logger.error(f"Erro ao configurar roadmap para o arquivo '{file}'.")
+            logger.error(f"Detalhes do erro: {e}\n{traceback.format_exc()}")
             return False
 
         return True
 
-
-    def test_CLI(self, file_path: str, input_args: list[str], expected_output: str) -> bool:
-        """Testa um comando CLI de um programa Python
-
-        Args:
-            file_path (str): Caminho do arquivo a ser testado
-            input_data (list[str]): Lista de inputs a serem fornecidos ao programa
-            expected_output (str): Saída esperada
-
-        Returns:
-            bool: Booleano indicando se a saída do programa contém a saída esperada
-        """
-        try:
-            result = subprocess.run(
-                [sys.executable, file_path] + input_args, 
-                capture_output=True, 
-                text=True
-            )
-
-            if result.returncode != 0:
-                self.logger.warning(
-                    f"[CLI] O programa terminou com código {result.returncode}"
-                )
-                self.logger.warning(f"[CLI] stderr: {result.stderr}")
-                return False
-
-            output = result.stdout.strip()
-            self.logger.debug(f"[CLI] Saída do comando '{' '.join(input_args)}': {output}")
-
-            return expected_output in output
-
-        except Exception as e:
-            self.logger.warning(
-                f"[CLI] Falha ao executar o comando '{file_path} {' '.join(input_args)}': {e}"
-            )
-            return False
-
-    def test_INPUTS(self, file_path: str, input_data: list[str], expected_output: list[str]) -> bool:
-        """Testa uma sequência de inputs
-
-        Args:
-            file_path (str): Caminho do arquivo a ser testado
-            input_data (list[str]): Lista de inputs a serem fornecidos ao programa
-            expected_output (list[str]): Lista de saídas esperadas
-
-        Returns:
-            bool: Booleano indicando se a saída do programa contém a saída esperada
-        """
-        try:
-            result = subprocess.run(
-                [sys.executable, file_path],
-                input="\n".join(input_data) + "\n",
-                capture_output=True,
-                text=True
-            )
-
-            if result.returncode != 0:
-                self.logger.warning(
-                    f"[INPUT] O programa terminou com código {result.returncode}"
-                )
-                self.logger.warning(f"[INPUT] stderr: {result.stderr}")
-                return False
-
-            output = result.stdout.strip()
-            self.logger.debug(f"[INPUT] Saída do input: {output}")
-
-            return all(
-                expected in output
-                for expected in expected_output
-            )
-
-        except Exception as e:
-            self.logger.warning(
-                f"[INPUT] Falha ao executar o input '{input_data}': {e}"
-            )
-            return False
-
-    
-    def make_result_message(self, result: bool, info: str) -> str:
+    def make_result_message(self, result: Result, info: str) -> str:
         """Forma uma mensagem de resultado com cores e estilo apropriados
 
         Args:
-            result (bool): Resultado do teste
-            info (str): Informação sobre o teste
+            result (Result): Resultado do teste
+            info (str): Informação sobre o teste realizado
 
         Returns:
             str: Mensagem formatada
@@ -241,30 +163,35 @@ class Checker:
             True: Fore.GREEN,
             False: Fore.RED
         }
-        return f"{colors[result]}{Style.BRIGHT}{':)' if result else ':('}{Style.RESET_ALL} {colors[result]}{info}{Style.RESET_ALL}"
+        return f"{colors[result.success]}{Style.BRIGHT}{':)' if result.success else ':('}{Style.RESET_ALL} {colors[result.success]}{info}{Style.RESET_ALL}{f'\n{Fore.RED}{Style.DIM}   ↳ ERRO: {result.error.replace('\n', '  ')}{Style.RESET_ALL}' if result.error != '' else ''}"
 
 
-    def run_roadmap(self) -> list:
+    def run_roadmap(self) -> tuple[int, list[Result]]:
         """Executa os testes do roadmap e retorna uma lista de resultados
 
         Returns:
-            list: Lista de resultados dos testes
+            tuple[bool, list[Result]]: Tupla contendo um int com valor para sys.exit() indicando se todos os testes passaram e uma lista de resultados
         """
+        all_passed = 0
         results = []
         for step in self.roadmap:
+            logger.debug(f"Executando teste {step['info']} com argumentos {', '.join(str(arg) for arg in step['args'])}")
             try:
-                self.logger.debug(step["args"])
+                logger.debug(step["args"])
                 result = step["action"](*step["args"])
+                if not result.success:
+                    all_passed = 1
             except Exception as e:
-                result = False
-                self.logger.warning(f"Erro ao executar o teste '{step['info']}': {e}\n{traceback.format_exc()}")
+                result = Result(False, f"Erro inesperado: {traceback.format_exc()}")
+                logger.warning(f"Erro ao executar o teste '{step['info']}': {e}\n{traceback.format_exc()}")
+                all_passed = 1
             
             results.append(self.make_result_message(result, step["info"]))
 
-        return results
+        return (all_passed, results)
 
     
-    def show_results(self, results: list) -> None:
+    def show_results(self, results: list) -> bool:
         """Exibe os resultados dos testes no console
 
         Args:

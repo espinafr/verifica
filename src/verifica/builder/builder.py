@@ -8,14 +8,16 @@ import sys
 import os
 
 from .tui import TUI, ANSI_PATTERN
-from .config import settings
+from ..config import settings
 
 # Código ANSI para limpar a linha atual no terminal
 CLEAR_LINE = "\r\033[K"
 
 class Controller:
+    """Classe com métodos de entrada customizada e controle do console"""
     @staticmethod
     def clear_command():
+        """Limpa o terminal, dependendo do sistema operacional"""
         if os.name == 'nt':
             subprocess.run(['cmd', '/c', 'cls'])
         else:
@@ -23,6 +25,14 @@ class Controller:
 
 
     def clear_terminal(func):
+        """Wrapper para limpar o terminal antes de executar funções
+
+        Args:
+            func: Função a ser decorada
+
+        Returns:
+            Any: Retorna o resultado da função decorada
+        """
         @wraps(func)
         def wrapper(*args, **kwargs):
             Controller.clear_command()
@@ -30,17 +40,15 @@ class Controller:
         return wrapper
 
 
-    def loop_breaker(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except KeyboardInterrupt:
-                return None
-        return wrapper
+    def sequential_question(input_text: str) -> list:
+        """Gera um input contínuo que pode ser quebrado apertando CTRL-C
 
+        Args:
+            input_text (str): Texto do input
 
-    def sequential_question(input_text):
+        Returns:
+            list: Lista com as respostas
+        """
         answers = []
         try:
             while True:
@@ -55,38 +63,78 @@ class Controller:
             return answers
 
 
-    def required_question(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            while True:
-                result = func(*args, **kwargs)
-                if not isinstance(result, str) or result.strip() == "":
-                    print(f"{Style.BRIGHT}{Fore.RED}Este campo é obrigatório. Por favor, insira um valor válido.{Style.RESET_ALL}")
-                else:
-                    return result
-        return wrapper
+    def required_question(input_text: str) -> str:
+        """Cria um input que não aceita respostas vazias, repetindo a pergunta até que uma resposta válida seja fornecida
+
+        Args:
+            input_text (str): Texto do input
+
+        Returns:
+            str: String válida
+        """
+        while True:
+            result = input(input_text)
+            if not isinstance(result, str) or result.strip() == "":
+                print(f"{Style.BRIGHT}{Fore.RED}Este campo é obrigatório. Por favor, insira um valor válido.{Style.RESET_ALL}")
+            else:
+                return result
 
 
     def required_text(text) -> str:
+        """Formata o texto como obrigatório (vermelho)
+        
+        Args:
+            text (str): Texto a ser formatado
+
+        Returns:
+            str: Texto formatado
+        """
         return f"{Fore.RED}{text}{Style.RESET_ALL}"
 
 
     def optional_text(text) -> str:
+        """Formata o texto como opcional (amarelo)
+        
+        Args:
+            text (str): Texto a ser formatado
+
+        Returns:
+            str: Texto formatado
+        """
         return f"{Fore.YELLOW}{text}{Style.RESET_ALL}"
 
 
     def sequence_text(text) -> str:
+        """Formata o texto como sequência (verde)
+        
+        Args:
+            text (str): Texto a ser formatado
+
+        Returns:
+            str: Texto formatado
+        """
         return f"{Fore.GREEN}{text}{Style.RESET_ALL}"
 
 
 class Selector:
+    """Classe que representa uma opção de seleção no TUI"""
     def __init__(self, name: str, action, selected: bool = False):
         self.name = name
         self.action = action
         self.selected = selected
 
 class FileBuilder(Controller):
+    """Classe para construir a estrutura de testes de um arquivo específico
+
+    Args:
+        Controller (Controller): O controlador de entrada e saída do terminal
+    """
     def __init__(self, file: str):
+        """Inicializa a instância da classe
+
+        Args:
+            file (str): Arquivo que será analisado e para o qual a estrutura de testes será criada
+        """
         self.file = file
         self.selectors = [
             Selector("Classe", self.create_classes),
@@ -99,6 +147,7 @@ class FileBuilder(Controller):
 
     @Controller.clear_terminal
     def show_selector(self):
+        """Mostra seletores (blocos de análise) disponíveis para o arquivo"""
         if not hasattr(self, 'tui'):
             self.tui = TUI([self.file, {"":f"Selecione o tipo de funcionalidade que você quer testar no arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}. Digite o número correspondente e aperte ENTER."}, {}], max_line=50)
 
@@ -109,6 +158,14 @@ class FileBuilder(Controller):
 
 
     def index_is_selectable(self, index: int) -> bool:
+        """Checa se um índice dos seletores é válido
+
+        Args:
+            index (int): Índice
+
+        Returns:
+            bool: True se o índice for válido, False caso contrário
+        """
         try:
             index = int(index)
             available_selectors = len(self.selectors)
@@ -121,15 +178,15 @@ class FileBuilder(Controller):
 
 
     def get_selectors(self):
+        """Permite ao usuário selecionar os blocos de análise que deseja criar para o arquivo"""
         self.show_selector()
         selecteds = 0
         while True:
-            index = Controller.required_question(input)(Controller.required_text("> "))
+            index = Controller.required_question(Controller.required_text("> "))
             if self.index_is_selectable(index):
                 self.selectors[int(index) - 1].selected = True
                 selecteds += 1
                 break
-
         self.show_selector()
         while True:
             index = input(Controller.optional_text("> "))
@@ -152,6 +209,7 @@ class FileBuilder(Controller):
 
 
     def create_structure(self):
+        """Cria a entrada de 'estrutura' no arquivo atual, caso não exista"""
         if not "STRUCTURE" in self.current_file:
             self.current_file["STRUCTURE"] = {}
         return True
@@ -159,6 +217,7 @@ class FileBuilder(Controller):
 
     @Controller.clear_terminal
     def create_classes(self):
+        """Cria checagem de classe para o arquivo atual, permitindo o registro de classes, métodos e inicializadores"""
         self.create_structure()
         if not "CLASSES" in self.current_file["STRUCTURE"]:
             self.current_file["STRUCTURE"]["CLASSES"] = []
@@ -166,10 +225,10 @@ class FileBuilder(Controller):
         print(f"Iniciando registro de classes para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
         while True:
             current_class = {}
-            class_name = Controller.required_question(input)(Controller.required_text("Nome da classe: "))
+            class_name = Controller.required_question(Controller.required_text("Nome da classe: "))
             current_class["name"] = class_name
 
-            is_initialized = Controller.required_question(input)(Controller.required_text("A classe possui um método __init__? (s/n): "))
+            is_initialized = Controller.required_question(Controller.required_text("A classe possui um método __init__? (s/n): "))
             if is_initialized.strip()[0].lower() == "s":
                 current_class["initializer"] = {}
                 current_class["initialized"] = True
@@ -184,20 +243,20 @@ class FileBuilder(Controller):
                     break
 
             while True:
-                add_method = Controller.required_question(input)(Controller.required_text("Deseja adicionar um método à classe? (s/n): "))
+                add_method = Controller.required_question(Controller.required_text("Deseja adicionar um método à classe? (s/n): "))
                 if add_method[0].lower() == "s":
                     if not "methods" in current_class:
                         current_class["methods"] = []
                     method_data = {}
 
-                    method_name = Controller.required_question(input)(Controller.required_text("Nome do método: "))
+                    method_name = Controller.required_question(Controller.required_text("Nome do método: "))
                     method_data["name"] = method_name
 
                     print(f"Digite os parâmetros do método {Style.DIM}Aperte CTRL-C para parar.")
                     method_inputs = Controller.sequential_question(Controller.optional_text("> "))
                     method_data["input"] = method_inputs if method_inputs else []
 
-                    is_static = Controller.required_question(input)(Controller.required_text(f"{CLEAR_LINE}O método é estático? (s/n): "))
+                    is_static = Controller.required_question(Controller.required_text(f"{CLEAR_LINE}O método é estático? (s/n): "))
                     method_data["static"] = True if is_static.strip()[0].lower() == "s" else False
 
                     expected_output = input(Controller.optional_text("Output esperado: "))
@@ -212,7 +271,7 @@ class FileBuilder(Controller):
             
             self.current_file["STRUCTURE"]["CLASSES"].append(current_class)
             print(f"Classe {Style.BRIGHT}{Fore.CYAN}{class_name}{Style.RESET_ALL} adicionada com sucesso!")
-            new_class = Controller.required_question(input)(Controller.required_text("Deseja adicionar outra classe? (s/n): "))
+            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra classe? (s/n): "))
             if new_class.strip()[0].lower() != "s":
                 break
             
@@ -220,6 +279,7 @@ class FileBuilder(Controller):
 
     @Controller.clear_terminal
     def create_functions(self):
+        """Cria checagem de função para o arquivo atual, permitindo o registro de funções e suas baterias de testes"""
         self.create_structure()
         if not "FUNCTIONS" in self.current_file["STRUCTURE"]:
             self.current_file["STRUCTURE"]["FUNCTIONS"] = []
@@ -227,7 +287,7 @@ class FileBuilder(Controller):
         print(f"Iniciando registro de funções para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
         while True:
             current_function = {}
-            function_name = Controller.required_question(input)(Controller.required_text("Nome da função: "))
+            function_name = Controller.required_question(Controller.required_text("Nome da função: "))
             current_function["name"] = function_name
 
             print("Bateria de testes da função")
@@ -247,14 +307,14 @@ class FileBuilder(Controller):
                     current_run["info"] = info
 
                 current_function["runs"].append(current_run)
-                new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outra bateria de testes? (s/n): "))
+                new_run = Controller.required_question(Controller.required_text("Deseja adicionar outra bateria de testes? (s/n): "))
                 if new_run.strip()[0].lower() != "s":
                     break
 
             self.current_file["STRUCTURE"]["FUNCTIONS"].append(current_function)
             print(f"Função {Style.BRIGHT}{Fore.CYAN}{function_name}{Style.RESET_ALL} adicionada com sucesso!")
 
-            new_class = Controller.required_question(input)(Controller.required_text("Deseja adicionar outra função? (s/n): "))
+            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra função? (s/n): "))
             if new_class.strip()[0].lower() != "s":
                 break
         
@@ -262,6 +322,7 @@ class FileBuilder(Controller):
 
     @Controller.clear_terminal
     def create_cli(self):
+        """Cria checagem de CLI para o arquivo atual, permitindo o registro de comandos e suas baterias de testes"""
         self.current_file["CLI"] = []
         print(f"Iniciando registro de CLI para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
         while True:
@@ -278,13 +339,14 @@ class FileBuilder(Controller):
 
             self.current_file["CLI"].append(current_cli)
             print(f"{Style.BRIGHT}{Fore.CYAN}Comando registrado com sucesso!")
-            new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outro comando CLI? (s/n): "))
+            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro comando CLI? (s/n): "))
             if new_run.strip()[0].lower() != "s":
                 break
 
 
     @Controller.clear_terminal
     def create_inputs(self):
+        """Cria checagem de inputs para o arquivo atual, permitindo o registro de inputs e suas baterias de testes"""
         print(f"Iniciando registro de inputs para o arquivo {Style.BRIGHT}{Fore.CYAN}{self.file}{Style.RESET_ALL}.")
         self.current_file["INPUTS"] = []
         while True:
@@ -303,12 +365,13 @@ class FileBuilder(Controller):
 
             self.current_file["INPUTS"].append(current_seqinput)
             print(f"{Style.BRIGHT}{Fore.CYAN}Input registrado com sucesso!")
-            new_run = Controller.required_question(input)(Controller.required_text("Deseja adicionar outro input? (s/n): "))
+            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro input? (s/n): "))
             if new_run.strip()[0].lower() != "s":
                 break
 
 
     def purge_unselected(self):
+        """Remove seletores não selecionados da lista de seletores"""
         selected = []
         for selector in self.selectors:
             if selector.selected:
@@ -317,11 +380,13 @@ class FileBuilder(Controller):
 
 
     def run_selected(self):
+        """Roda as funções associadas aos seletores selecionados"""
         for selector in self.selectors:
             selector.action()
 
 
     def show_progress(self):
+        """Mostra o progresso atual do arquivo sendo analisado"""
         if not hasattr(self, 'progress_visualizer'):
             self.progress_visualizer = copy.deepcopy(self.current_file)
         visualizer = self.progress_visualizer
@@ -334,6 +399,7 @@ class FileBuilder(Controller):
     
 
     def start(self):
+        """Inicia o processo de construção da estrutura de testes para o arquivo atual"""
         self.get_selectors()
         self.purge_unselected()
         self.run_selected()
@@ -341,6 +407,7 @@ class FileBuilder(Controller):
 
 
 class Builder:
+    """Classe que representa o construtor principal de estruturas de testes."""
     default_info =[
         f"{Fore.YELLOW}{Style.BRIGHT}Gerador de {settings.get_config('answers_file_name')}",
         f"{Style.DIM}Seu progresso vai ficar aqui.",
@@ -354,20 +421,30 @@ class Builder:
 
     @staticmethod
     def confirm_yield():
+        """Pausa a execução até que o usuário pressione ENTER"""
         input("Pressione ENTER para continuar...")
 
     def __init__(self):
+        """Inicializa a instância da classe Builder"""
         self.build = {}
         self.info = TUI(self.default_info, max_line=80)
     
     @Controller.clear_terminal
     def show_info(self):
+        """Mostra informações sobre o progresso atual do Builder"""
         self.info.show()
     
     def add_block(self, name: str, content: str):
+        """Adiciona um bloco de informações ao progresso atual do Builder"""
         self.build[name] = content
 
     def show_progress(self, name: str, text: str):
+        """Adiciona progresso ao registro e mostra ele
+
+        Args:
+            name (str): Nome do bloco de progresso
+            text (str): Descrição do progresso
+        """
         progress = self.info.contents[1]
         if not isinstance(progress, dict):
             progress = {}
@@ -377,7 +454,20 @@ class Builder:
 
         self.show_info()
 
-    def get_files(self):
+    def get_description(self):
+        """Solicita a descrição da atividade ao usuário e adiciona ao progresso"""
+        print("Forneça uma descrição para a atividade. Caso não queira adicionar uma, apenas aperte ENTER.")
+        description = input(f"{Controller.optional_text('> ')}")
+        if description.strip() != "":
+            self.add_block("description", description)
+            self.show_progress("Descrição da atividade: ", description)
+
+    def get_files(self) -> list:
+        """Solicita os arquivos a serem usados na atividade
+
+        Returns:
+            list: Lista de arquivos a serem usados na atividade
+        """
         files = []
 
         def format_filename(filename: str) -> str:
@@ -396,7 +486,7 @@ class Builder:
             return extra_files
 
         print(f"\nNomeie os arquivos que você quer analisar. O primeiro arquivo é obrigatório.\n{Fore.YELLOW}OBSERVAÇÃO: A extensão .py será adicionada automaticamente.")
-        files.append(format_filename(Controller.required_question(input)(f"{Controller.required_text('Nome do primeiro arquivo: ')}")))
+        files.append(format_filename(Controller.required_question(f"{Controller.required_text('Nome do primeiro arquivo: ')}")))
         print(f"\nSe quiser adicionar mais arquivos, digite o nome deles um por vez.\n{Style.DIM}Para parar aperte ENTER sem digitar nada.")
         files.extend(get_extra_files())
         
@@ -405,14 +495,15 @@ class Builder:
 
     @Controller.clear_terminal
     def save_file(self):
-        assignment_name = Controller.required_question(input)(f"{Controller.required_text('Nome da atividade: ')}")
+        """Salva o arquivo de correção gerado no diretório atual ou em um diretório especificado pelo usuário"""
+        assignment_name = Controller.required_question(f"{Controller.required_text('Nome da atividade: ')}")
         save_path = Path.cwd() / assignment_name
 
         print(f"O arquivo \"correcao.json\" será salvo em {save_path}.")
         change_path = input(f"{Controller.optional_text('Deseja alterar o caminho? (s/n): ')}")
 
         if change_path and change_path.strip()[0].lower() == "s":
-            user_input = Controller.required_question(input)(f"{Controller.required_text('Novo caminho: ')}")
+            user_input = Controller.required_question(f"{Controller.required_text('Novo caminho: ')}")
             save_path = Path(user_input)
 
         file_path = save_path / "correcao.json"
@@ -424,10 +515,12 @@ class Builder:
         print(f"Arquivo salvo em {file_path}.")
 
     def start(self):
+        """Inicia o processo de construção da estrutura de testes para a atividade"""
         try:
             self.show_info()
 
             self.confirm_yield()
+            self.get_description()
             files = self.get_files()
             self.add_block("files", files)
             self.show_progress("Arquivos selecionados: ", f"{'; '.join(files)}.")
@@ -442,6 +535,8 @@ class Builder:
                 self.confirm_yield()
 
             self.save_file()
+            sys.exit(0)
         except KeyboardInterrupt:
             Controller.clear_command()
             print(f"{Fore.RED}Operação cancelada pelo usuário. Nenhum arquivo foi salvo.")
+            sys.exit(1)
