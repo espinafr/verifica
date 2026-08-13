@@ -81,10 +81,10 @@ class TUI:
         return f"║"
 
     def __create_center_row(self, text: str):
-        return f"{self.__create_left_border()}{" "*self.padding}{text.center(self.min_size - self.padding + (len(text) - self.visible_len(text)))}{Style.RESET_ALL}{" "*self.padding}{self.__create_right_border()}"
+        return f"{self.__create_left_border()}{' '*self.padding}{text.center(self.min_size - self.padding + (len(text) - self.visible_len(text)))}{Style.RESET_ALL}{' '*self.padding}{self.__create_right_border()}"
 
     def __create_row(self, text: str):
-        return f"{self.__create_left_border()}{" "*self.padding}{text.ljust(self.min_size - self.padding + (len(text) - self.visible_len(text)))}{" "*self.padding}{Style.RESET_ALL}{self.__create_right_border()}"
+        return f"{self.__create_left_border()}{' '*self.padding}{text.ljust(self.min_size - self.padding + (len(text) - self.visible_len(text)))}{' '*self.padding}{Style.RESET_ALL}{self.__create_right_border()}"
 
     def show(self):
         last_element = len(self.contents) - 1
