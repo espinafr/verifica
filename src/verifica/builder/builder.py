@@ -477,17 +477,23 @@ class Builder:
 
         def get_extra_files() -> list:
             extra_files = []
-            while True:
-                extra_file = input(f"{Controller.optional_text('> ')}")
-                if extra_file.strip() != "":
-                    extra_files.append(format_filename(extra_file))
-                else:
-                    break
+            try:
+                while True: # Dá pra melhorar
+                    extra_file = input(f"{Controller.optional_text('> ')}")
+                    if extra_file.strip() != "":
+                        extra_files.append(format_filename(extra_file))
+                        sys.stdout.write("\033[F\033[K")
+                        sys.stdout.flush()
+                        print(f"{Fore.GREEN}> {extra_file}{Style.RESET_ALL}")
+                    else:
+                        break
+            except KeyboardInterrupt:
+                pass
             return extra_files
 
         print(f"\nNomeie os arquivos que você quer analisar. O primeiro arquivo é obrigatório.\n{Fore.YELLOW}OBSERVAÇÃO: A extensão .py será adicionada automaticamente.")
         files.append(format_filename(Controller.required_question(f"{Controller.required_text('Nome do primeiro arquivo: ')}")))
-        print(f"\nSe quiser adicionar mais arquivos, digite o nome deles um por vez.\n{Style.DIM}Para parar aperte ENTER sem digitar nada.")
+        print(f"\nSe quiser adicionar mais arquivos, digite o nome deles um por vez.\n{Style.DIM}Para parar aperte CTRL-C ou ENTER sem digitar nada.")
         files.extend(get_extra_files())
         
         return list(dict.fromkeys(files))
