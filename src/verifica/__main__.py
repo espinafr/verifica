@@ -1,4 +1,4 @@
-from colorama import init
+from colorama import init, Fore
 from pathlib import Path
 import argparse
 import logging
@@ -64,7 +64,7 @@ def main():
             print("Baixando arquivo de correção...")
             logging.debug(f"CAMINHO DO ARQUIVO BAIXADO: {answers.fetch()}")
         except Exception as e:
-            logging.error(f"Não foi possível localizar o arquivo de correção em '{args.atividade}'")
+            print(f"{Fore.RED}{e}{Fore.RESET}")
             sys.exit(2)
     else:
         answers = Fetcher(args.atividade, local=True)
@@ -72,7 +72,7 @@ def main():
             print("Buscando arquivo de correção local...")
             logging.debug(f"CAMINHO DO ARQUIVO LOCAL: {answers.get_file()}")
         except Exception as e:
-            logging.error(f"Não foi possível localizar o arquivo de correção em '{args.atividade}'")
+            print(f"{Fore.RED}{e}{Fore.RESET}")
             sys.exit(2)
 
     try:

@@ -57,9 +57,12 @@ class Fetcher:
 
             with urlopen(request) as response:
                 content = response.read().decode("utf-8")
-        except (HTTPError, URLError) as error:
-            self.logger.error(f"Falha ao buscar o arquivo de correção '{self.exercise}': {error}")
-            raise RuntimeError(f"Falha ao buscar o arquivo de correção '{self.exercise}'") from error
+        except URLError as error:
+            self.logger.warning(f"Houve um erro ao buscar o arquivo de correção '{self.exercise}': {error.reason}")
+            raise RuntimeError(f"Houve um erro ao buscar o arquivo de correção '{self.exercise}': {error.reason}")
+        except HTTPError as error:
+            self.logger.warning(f"O servidor respondeu com um erro ao buscar o arquivo de correção '{self.exercise}': {error.code} {error.reason}")
+            raise RuntimeError(f"O servidor respondeu com um erro ao buscar o arquivo de correção '{self.exercise}': {error.code} {error.reason}")
 
         self.file = tempfile.NamedTemporaryFile(mode='w+t', prefix='verifica-', suffix='.json', encoding='utf-8')
         self.file.write(content)
