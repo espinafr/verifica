@@ -228,7 +228,7 @@ class FileBuilder(Controller):
             class_name = Controller.required_question(Controller.required_text("Nome da classe: "))
             current_class["name"] = class_name
 
-            is_initialized = Controller.required_question(Controller.required_text("A classe possui um método __init__? (s/n): "))
+            is_initialized = Controller.required_question(Controller.required_text("A classe possui um método __init__? (N/s): "))
             if is_initialized.strip()[0].lower() == "s":
                 current_class["initializer"] = {}
                 current_class["initialized"] = True
@@ -243,7 +243,7 @@ class FileBuilder(Controller):
                     break
 
             while True:
-                add_method = Controller.required_question(Controller.required_text("Deseja adicionar um método à classe? (s/n): "))
+                add_method = Controller.required_question(Controller.required_text("Deseja adicionar um método à classe? (N/s): "))
                 if add_method[0].lower() == "s":
                     if not "methods" in current_class:
                         current_class["methods"] = []
@@ -256,7 +256,7 @@ class FileBuilder(Controller):
                     method_inputs = Controller.sequential_question(Controller.optional_text("> "))
                     method_data["input"] = method_inputs if method_inputs else []
 
-                    is_static = Controller.required_question(Controller.required_text(f"{CLEAR_LINE}O método é estático? (s/n): "))
+                    is_static = Controller.required_question(Controller.required_text(f"{CLEAR_LINE}O método é estático? (N/s): "))
                     method_data["static"] = True if is_static.strip()[0].lower() == "s" else False
 
                     expected_output = input(Controller.optional_text("Output esperado: "))
@@ -271,7 +271,7 @@ class FileBuilder(Controller):
             
             self.current_file["STRUCTURE"]["CLASSES"].append(current_class)
             print(f"Classe {Style.BRIGHT}{Fore.CYAN}{class_name}{Style.RESET_ALL} adicionada com sucesso!")
-            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra classe? (s/n): "))
+            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra classe? (N/s): "))
             if new_class.strip()[0].lower() != "s":
                 break
             
@@ -307,14 +307,14 @@ class FileBuilder(Controller):
                     current_run["info"] = info
 
                 current_function["runs"].append(current_run)
-                new_run = Controller.required_question(Controller.required_text("Deseja adicionar outra bateria de testes? (s/n): "))
+                new_run = Controller.required_question(Controller.required_text("Deseja adicionar outra bateria de testes? (N/s): "))
                 if new_run.strip()[0].lower() != "s":
                     break
 
             self.current_file["STRUCTURE"]["FUNCTIONS"].append(current_function)
             print(f"Função {Style.BRIGHT}{Fore.CYAN}{function_name}{Style.RESET_ALL} adicionada com sucesso!")
 
-            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra função? (s/n): "))
+            new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra função? (N/s): "))
             if new_class.strip()[0].lower() != "s":
                 break
         
@@ -330,6 +330,9 @@ class FileBuilder(Controller):
             inputs = input(Controller.optional_text("Argumentos do comando: "))
             current_cli["input"] = inputs if inputs else ""
 
+            is_regex = True if "s" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (N/s): ")).lower().strip() else False
+            current_cli["regex"] = is_regex
+
             expected = input(Controller.optional_text("Output esperado: "))
             current_cli["expected"] = expected if expected else ""
 
@@ -339,7 +342,7 @@ class FileBuilder(Controller):
 
             self.current_file["CLI"].append(current_cli)
             print(f"{Style.BRIGHT}{Fore.CYAN}Comando registrado com sucesso!")
-            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro comando CLI? (s/n): "))
+            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro comando CLI? (N/s): "))
             if new_run.strip()[0].lower() != "s":
                 break
 
@@ -355,7 +358,10 @@ class FileBuilder(Controller):
             inputs = Controller.sequential_question(Controller.optional_text("> "))
             current_seqinput["input"] = inputs if inputs else []
 
-            print(f"{CLEAR_LINE}Digite os outputs esperados. {Style.DIM}Aperte CTRL-C para parar.")
+            is_regex = True if "s" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (N/s): ")).lower().strip() else False
+            current_seqinput["regex"] = is_regex
+
+            print(f"Digite os outputs esperados. {Style.DIM}Aperte CTRL-C para parar.")
             expected = Controller.sequential_question(Controller.optional_text("> "))
             current_seqinput["expected"] = expected if expected else []
 
@@ -365,7 +371,7 @@ class FileBuilder(Controller):
 
             self.current_file["INPUTS"].append(current_seqinput)
             print(f"{Style.BRIGHT}{Fore.CYAN}Input registrado com sucesso!")
-            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro input? (s/n): "))
+            new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro input? (N/s): "))
             if new_run.strip()[0].lower() != "s":
                 break
 
@@ -506,7 +512,7 @@ class Builder:
         save_path = Path.cwd() / assignment_name
 
         print(f"O arquivo \"correcao.json\" será salvo em {save_path}.")
-        change_path = input(f"{Controller.optional_text('Deseja alterar o caminho? (s/n): ')}")
+        change_path = input(f"{Controller.optional_text('Deseja alterar o caminho? (N/s): ')}")
 
         if change_path and change_path.strip()[0].lower() == "s":
             user_input = Controller.required_question(f"{Controller.required_text('Novo caminho: ')}")

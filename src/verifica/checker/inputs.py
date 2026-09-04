@@ -1,10 +1,31 @@
 import subprocess
 import traceback
 import sys
+import re
 
 from .shared import Result, logger
 
-def test_INPUTS(file_path: str, input_data: list[str], expected_output: list[str]) -> Result:
+# Código para, em termos simples, ""executar input() sem texto"" 
+_INPUT_RUNNER = """
+import builtins
+import runpy
+import sys
+
+
+def input_without_prompt(prompt=""):
+    line = sys.stdin.readline()
+    if line == "":
+        raise EOFError
+    return line.rstrip("\\r\\n")
+
+
+builtins.input = input_without_prompt
+sys.argv = [sys.argv[1]]
+runpy.run_path(sys.argv[0], run_name="__main__")
+"""
+
+
+def test_INPUTS(file_path: str, input_data: list[str], expected_output: list[str], use_regex: bool = False) -> Result:
         """Testa uma sequência de inputs
 
         Args:
@@ -17,7 +38,7 @@ def test_INPUTS(file_path: str, input_data: list[str], expected_output: list[str
         """
         try:
             process = subprocess.run(
-                [sys.executable, file_path],
+                [sys.executable, "-c", _INPUT_RUNNER, file_path],
                 input="\n".join(input_data) + "\n",
                 capture_output=True,
                 text=True
@@ -33,12 +54,17 @@ def test_INPUTS(file_path: str, input_data: list[str], expected_output: list[str
             output = process.stdout.strip()
             logger.debug(f"[INPUT] Saída do input: {output}")
 
-            is_expected = all(
-                expected in output
-                for expected in expected_output
-            )
+            if use_regex:
+                expected_pattern = "\n".join(expected_output)
+                is_expected = re.fullmatch(expected_pattern, output, re.DOTALL) is not None
 
-            return Result(is_expected, "" if is_expected else f"o output esperado '{', '.join(expected_output)}' não foi encontrado em '{output}'")
+                return Result(is_expected, "" if is_expected else f"o output esperado '{expected_pattern}' não correspondeu à saída '{output}'")
+            else:
+                is_expected = all(
+                    expected in output
+                    for expected in expected_output
+                )
+                return Result(is_expected, "" if is_expected else f"o output esperado '{', '.join(expected_output)}' não correspondeu à saída '{output}'")
 
         except Exception as e:
             logger.warning(f"[INPUT] Falha ao executar o input '{input_data}': {e}")

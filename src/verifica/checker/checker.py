@@ -67,9 +67,13 @@ class Checker:
                     if check_step == "CLI":
                         for command in subsequent_steps:
                             logger.info(f"ADICIONANDO COMANDO CLI: {file} {command['input']}")
+
+                            inputs = command["input"].split(" ")
+                            is_regex = bool(command.get("regex", False))
+
                             self.roadmap.append({
                                 "info": command.get("info", f"comando '{command['input']}' retorna '{command['expected']}'"),
-                                "args": [current_file_path, command["input"].split(" "), command["expected"]],
+                                "args": [current_file_path, inputs, command["expected"], is_regex],
                                 "action": test_CLI
                             })
                     elif check_step == "STRUCTURE":
@@ -126,6 +130,7 @@ class Checker:
 
                             expected = sequence_input_info['expected']
                             input_data = sequence_input_info['input']
+                            is_regex = bool(sequence_input_info.get("regex", False))
 
                             if isinstance(expected, str):
                                 expected = [expected]
@@ -134,7 +139,7 @@ class Checker:
 
                             self.roadmap.append({
                                 "info": sequence_input_info.get("info", f"input '{', '.join(input_data)}' retorna '{', '.join(expected)}'"),
-                                "args": [current_file_path, input_data, expected],
+                                "args": [current_file_path, input_data, expected, is_regex],
                                 "action": test_INPUTS
                             })
                     else:

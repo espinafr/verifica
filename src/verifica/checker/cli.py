@@ -1,9 +1,10 @@
 import subprocess
 import sys
+import re
 
 from .shared import Result, logger
 
-def test_CLI(file_path: str, input_args: list[str], expected_output: str) -> Result:
+def test_CLI(file_path: str, input_args: list[str], expected_output: str, use_regex: bool = False) -> Result:
     """Testa um comando CLI de um programa Python
 
     Args:
@@ -31,7 +32,11 @@ def test_CLI(file_path: str, input_args: list[str], expected_output: str) -> Res
         output = process.stdout.strip()
         logger.debug(f"[CLI] Saída do comando '{' '.join(input_args)}': {output}")
 
-        is_expected = expected_output in output
+        if use_regex:
+            is_expected = re.fullmatch(expected_output, output, re.DOTALL) is not None
+        else:
+            is_expected = expected_output in output
+
         return Result(is_expected, "" if is_expected else f"retornou '{output}', mas era esperado '{expected_output}'")
 
     except Exception as e:
