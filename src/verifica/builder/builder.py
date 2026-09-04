@@ -333,7 +333,7 @@ class FileBuilder(Controller):
             inputs = input(Controller.optional_text("Argumentos do comando: "))
             current_cli["input"] = inputs if inputs else ""
 
-            is_regex = True if "n" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (S/n): ")).lower().strip() else False
+            is_regex = False if "n" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (S/n): ")).lower().strip() else True
             current_cli["regex"] = is_regex
 
             expected = input(Controller.optional_text("Output esperado: "))
@@ -361,7 +361,7 @@ class FileBuilder(Controller):
             inputs = Controller.sequential_question(Controller.optional_text("> "))
             current_seqinput["input"] = inputs if inputs else []
 
-            is_regex = True if "n" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (S/n): ")).lower().strip() else False
+            is_regex = False if "n" in input(Controller.optional_text(f"{CLEAR_LINE}O output esperado é em regex? (S/n): ")).lower().strip() else True
             current_seqinput["regex"] = is_regex
 
             print(f"Digite os outputs esperados. {Style.DIM}Aperte CTRL-C para parar.")
