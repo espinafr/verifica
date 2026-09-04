@@ -189,7 +189,10 @@ class FileBuilder(Controller):
                 break
         self.show_selector()
         while True:
-            index = input(Controller.optional_text("> "))
+            try:
+                index = input(Controller.optional_text("> "))
+            except KeyboardInterrupt:
+                index = ""
             if index.strip() != "":
                 if self.index_is_selectable(index):
                     index = int(index)
@@ -201,11 +204,6 @@ class FileBuilder(Controller):
                     self.show_selector()
                 else:
                     print(Controller.required_text("Indice inválido."))
-            else:
-                if selecteds == 0:
-                    print(Controller.required_text("Pelo menos um item deve ser selecionado."))
-                else:
-                    return
 
 
     def create_structure(self):
