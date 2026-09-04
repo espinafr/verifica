@@ -1,0 +1,44 @@
+{
+    "description": "Atividade sem feedback",
+    "hints": false,
+    "files": [
+        "calculadora.py"
+    ],
+    "calculadora.py": {
+        "INPUTS": [
+            {
+                "input": [
+                    "4",
+                    "2"
+                ],
+                "regex": true,
+                "expected": [
+                    "6"
+                ],
+                "info": "faz somas simples"
+            },
+            {
+                "input": [
+                    "-4",
+                    "-2"
+                ],
+                "regex": true,
+                "expected": [
+                    "-6"
+                ],
+                "info": "faz somas negativas"
+            },
+            {
+                "input": [
+                    "-5",
+                    "5"
+                ],
+                "regex": true,
+                "expected": [
+                    "0"
+                ],
+                "info": "soma números positivos e negativos"
+            }
+        ]
+    }
+}
