@@ -69,6 +69,7 @@ Cada item da lista deve ter:
 - `input`: texto de entrada, separado por espaço para simular argumentos de linha de comando
 - `expected`: texto esperado na saída do programa
 - `info`: descrição opcional da verificação
+- `regex`: booleano opcional; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 
 Exemplo:
 
@@ -84,7 +85,22 @@ Exemplo:
 }
 ```
 
-> A comparação é feita verificando se o texto esperado aparece na saída produzida pelo programa.
+> Por padrão, a comparação verifica se o texto esperado aparece na saída produzida. Com `"regex": true`, o padrão deve corresponder à saída inteira.
+
+Exemplo usando regex:
+
+```json
+"arquivo.py": {
+    "CLI": [
+        {
+            "input": "produto 123",
+            "expected": "Produto: [A-Za-z]+ \\| codigo: [0-9]{3}",
+            "regex": true,
+            "info": "aceita qualquer produto com código de três dígitos"
+        }
+    ]
+}
+```
 
 ### 2. STRUCTURE
 Usado para verificar a existência e o comportamento de funções e classes.
@@ -175,6 +191,7 @@ Cada item deve ter:
 - `input`: texto enviado ao programa via stdin (lista ou string)
 - `expected`: saída esperada (lista ou string)
 - `info`: descrição opcional
+- `regex`: booleano opcional; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 
 Exemplos:
 
@@ -192,9 +209,21 @@ Exemplos:
 ```json
 "arquivo.py": {
     "INPUTS": [
-    {
-        "input": ["amora", "morango", "cereja"],
-        "expected": ["Hmmm, também gosto de amora, morango e cereja!"]
+        {
+            "input": ["amora", "morango", "cereja"],
+            "expected": ["Hmmm, também gosto de amora, morango e cereja!"]
+        }
+    ]
+}
+```
+
+```json
+"arquivo.py": {
+    "INPUTS": [
+        {
+            "input": ["Maria", "28"],
+            "expected": "Nome: [A-Za-z]+; idade: [0-9]{1,3}",
+            "regex": true
         }
     ]
 }
@@ -205,7 +234,8 @@ Exemplos:
 - A estrutura do JSON deve respeitar a ordem esperada pelo validador do projeto.
 - Cada arquivo listado em `files` deve ter pelo menos um bloco de verificação.
 - Os campos `input` e `expected` são obrigatórios nos itens de teste e `info` é opcional.
-- O valor esperado é comparado como parte da saída produzida, não necessariamente como uma igualdade exata.
+- Os textos usados como prompt em `input()` são ignorados; apenas a saída produzida pelo programa é considerada.
+- Quando `regex` é `true`, o valor esperado é tratado como uma expressão regular e deve corresponder à saída produzida inteira. Para aceitar conteúdo adicional, use uma expressão regular como `.*`.
 
 ## Exemplo completo
 Um arquivo de correção pode combinar vários tipos de teste em um mesmo exercício:

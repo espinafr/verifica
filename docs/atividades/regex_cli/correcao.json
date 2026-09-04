@@ -1,0 +1,19 @@
+{
+    "files": ["regex_cli.py"],
+    "description": "Exercício de CLI com expressão regular",
+    "regex_cli.py": {
+        "CLI": [
+            {
+                "input": "caderno 123",
+                "expected": "Produto: [A-Za-z]+ \\| codigo: [0-9]{3}",
+                "regex": true,
+                "info": "aceita um produto e um código numérico de três dígitos"
+            },
+            {
+                "input": "caneta 007",
+                "expected": "Produto: [A-Za-z]+ \\| codigo: [0-9]{3}",
+                "regex": true
+            }
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "files": ["regex_inputs.py"],
+    "description": "Exercício de inputs com expressão regular",
+    "regex_inputs.py": {
+        "INPUTS": [
+            {
+                "input": ["Maria", "28"],
+                "expected": "Nome: [A-Za-z]+; idade: [0-9]{1,3}",
+                "regex": true,
+                "info": "aceita nomes e idades em formatos variados"
+            },
+            {
+                "input": ["Joao", "7"],
+                "expected": "Nome: [A-Za-z]+; idade: [0-9]{1,3}",
+                "regex": true
+            }
+        ]
+    }
+}
