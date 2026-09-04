@@ -168,7 +168,10 @@ class Checker:
             True: Fore.GREEN,
             False: Fore.RED
         }
-        return f"{colors[result.success]}{Style.BRIGHT}{':)' if result.success else ':('}{Style.RESET_ALL} {colors[result.success]}{info}{Style.RESET_ALL}{f'\n{Fore.RED}{Style.DIM}   ↳ ERRO: {result.error.replace('\n', '  ')}{Style.RESET_ALL}' if result.error != '' else ''}"
+        error_msg = ""
+        if bool(self.answers.get("hints", True)):
+            error_msg = f'\n{Fore.RED}{Style.DIM}   ↳ ERRO: {result.error.replace('\n', '  ')}{Style.RESET_ALL}' if result.error != '' else ''
+        return f"{colors[result.success]}{Style.BRIGHT}{':)' if result.success else ':('}{Style.RESET_ALL} {colors[result.success]}{info}{Style.RESET_ALL}{error_msg}"
 
 
     def run_roadmap(self) -> tuple[int, list[Result]]:
@@ -177,7 +180,7 @@ class Checker:
         Returns:
             tuple[bool, list[Result]]: Tupla contendo um int com valor para sys.exit() indicando se todos os testes passaram e uma lista de resultados
         """
-        all_passed = 0
+        all_passed = 0 # 0 para verdadeiro 1 para falso (por causa de exit codes)
         results = []
         for step in self.roadmap:
             logger.debug(f"Executando teste {step['info']} com argumentos {', '.join(str(arg) for arg in step['args'])}")

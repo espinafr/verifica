@@ -232,7 +232,7 @@ class FileBuilder(Controller):
             current_class["name"] = class_name
 
             is_initialized = Controller.required_question(Controller.required_text("A classe possui um método __init__? (N/s): "))
-            if is_initialized.strip()[0].lower() == "s":
+            if is_initialized.strip().lower() == "s":
                 current_class["initializer"] = {}
                 current_class["initialized"] = True
                 while True:
@@ -260,7 +260,7 @@ class FileBuilder(Controller):
                     method_data["input"] = method_inputs if method_inputs else []
 
                     is_static = Controller.required_question(Controller.required_text(f"{CLEAR_LINE}O método é estático? (N/s): "))
-                    method_data["static"] = True if is_static.strip()[0].lower() == "s" else False
+                    method_data["static"] = True if is_static.strip().lower() == "s" else False
 
                     expected_output = input(Controller.optional_text("Output esperado: "))
                     method_data["expected"] = expected_output if expected_output else ""
@@ -275,7 +275,7 @@ class FileBuilder(Controller):
             self.current_file["STRUCTURE"]["CLASSES"].append(current_class)
             print(f"Classe {Style.BRIGHT}{Fore.CYAN}{class_name}{Style.RESET_ALL} adicionada com sucesso!")
             new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra classe? (N/s): "))
-            if new_class.strip()[0].lower() != "s":
+            if new_class.strip().lower() != "s":
                 break
             
 
@@ -311,14 +311,14 @@ class FileBuilder(Controller):
 
                 current_function["runs"].append(current_run)
                 new_run = Controller.required_question(Controller.required_text("Deseja adicionar outra bateria de testes? (N/s): "))
-                if new_run.strip()[0].lower() != "s":
+                if new_run.strip().lower() != "s":
                     break
 
             self.current_file["STRUCTURE"]["FUNCTIONS"].append(current_function)
             print(f"Função {Style.BRIGHT}{Fore.CYAN}{function_name}{Style.RESET_ALL} adicionada com sucesso!")
 
             new_class = Controller.required_question(Controller.required_text("Deseja adicionar outra função? (N/s): "))
-            if new_class.strip()[0].lower() != "s":
+            if new_class.strip().lower() != "s":
                 break
         
         
@@ -346,7 +346,7 @@ class FileBuilder(Controller):
             self.current_file["CLI"].append(current_cli)
             print(f"{Style.BRIGHT}{Fore.CYAN}Comando registrado com sucesso!")
             new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro comando CLI? (N/s): "))
-            if new_run.strip()[0].lower() != "s":
+            if new_run.strip().lower() != "s":
                 break
 
 
@@ -375,7 +375,7 @@ class FileBuilder(Controller):
             self.current_file["INPUTS"].append(current_seqinput)
             print(f"{Style.BRIGHT}{Fore.CYAN}Input registrado com sucesso!")
             new_run = Controller.required_question(Controller.required_text("Deseja adicionar outro input? (N/s): "))
-            if new_run.strip()[0].lower() != "s":
+            if new_run.strip().lower() != "s":
                 break
 
 
@@ -447,7 +447,7 @@ class Builder:
         """Adiciona um bloco de informações ao progresso atual do Builder"""
         self.build[name] = content
 
-    def show_progress(self, name: str, text: str):
+    def add_and_show_progress(self, name: str, text: str):
         """Adiciona progresso ao registro e mostra ele
 
         Args:
@@ -466,10 +466,17 @@ class Builder:
     def get_description(self):
         """Solicita a descrição da atividade ao usuário e adiciona ao progresso"""
         print("Forneça uma descrição para a atividade. Caso não queira adicionar uma, apenas aperte ENTER.")
-        description = input(f"{Controller.optional_text('> ')}")
+        description = input(f"{Controller.optional_text('$ ')}")
         if description.strip() != "":
             self.add_block("description", description)
-            self.show_progress("Descrição da atividade: ", description)
+            self.add_and_show_progress("Descrição da atividade:", description)
+
+    def get_hints(self):
+        """Pergunta se o usuário deseja deixar dicas de erro habilitadas, por padrão ativado"""
+        print("O feedback de erros é ativado por padrão. Deseja desativá-lo? (N/s)")
+        hints = input(f"{Controller.optional_text('$ ')}").strip().lower() != "s"
+        self.add_block("hints", hints)
+        self.add_and_show_progress("Feedback ativado:", "Sim" if hints else "Não")
 
     def get_files(self) -> list:
         """Solicita os arquivos a serem usados na atividade
@@ -517,7 +524,7 @@ class Builder:
         print(f"O arquivo \"correcao.json\" será salvo em {save_path}.")
         change_path = input(f"{Controller.optional_text('Deseja alterar o caminho? (N/s): ')}")
 
-        if change_path and change_path.strip()[0].lower() == "s":
+        if change_path and change_path.strip().lower() == "s":
             user_input = Controller.required_question(f"{Controller.required_text('Novo caminho: ')}")
             save_path = Path(user_input)
 
@@ -536,9 +543,10 @@ class Builder:
 
             self.confirm_yield()
             self.get_description()
+            self.get_hints()
             files = self.get_files()
             self.add_block("files", files)
-            self.show_progress("Arquivos selecionados: ", f"{'; '.join(files)}.")
+            self.add_and_show_progress("Arquivos selecionados:", f"{'; '.join(files)}.")
             self.confirm_yield()
 
             Controller.clear_command()
