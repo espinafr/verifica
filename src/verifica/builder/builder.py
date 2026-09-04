@@ -204,6 +204,11 @@ class FileBuilder(Controller):
                     self.show_selector()
                 else:
                     print(Controller.required_text("Indice inválido."))
+            else:
+                if selecteds == 0:
+                    print(Controller.required_text("Pelo menos um item deve ser selecionado."))
+                else:
+                    return
 
 
     def create_structure(self):
