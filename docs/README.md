@@ -58,6 +58,14 @@ Exemplo mínimo:
 }
 ```
 
+## Regras importantes
+- Os nomes das chaves devem ser exatamente como listados nesse arquivo: `files`, `description`, `CLI`, `STRUCTURE`, `FUNCTIONS`, `CLASSES` e `INPUTS`
+- A estrutura do JSON deve respeitar a ordem esperada pelo validador do projeto.
+- Cada arquivo listado em `files` deve ter pelo menos um bloco de verificação.
+- Os campos `input` e `expected` são obrigatórios nos itens de teste e `info` é opcional.
+- Os textos usados como prompt em `input()` são ignorados; apenas a saída produzida pelo programa é considerada.
+- Quando `regex` é `true`, o valor esperado é tratado como uma expressão regular e deve corresponder à saída produzida inteira. **Altamente recomendado para a maioria dos casos**, pois mantê-lo desativado apenas checa se o valor esperado está presente em qualquer lugar do output.
+
 ## Blocos de verificação
 Cada arquivo listado em "files" pode conter um ou mais blocos de testes. Os blocos aceitos pelo projeto são:
 
@@ -85,7 +93,7 @@ Exemplo:
 }
 ```
 
-> Por padrão, a comparação verifica se o texto esperado aparece na saída produzida. Com `"regex": true`, o padrão deve corresponder à saída inteira.
+> Por padrão, a comparação verifica se o texto esperado aparece na saída produzida. Com `"regex": true`, o padrão deve corresponder à saída inteira, por isso é recomendado mantê-lo ativado na maioria dos casos.
 
 Exemplo usando regex:
 
@@ -229,14 +237,6 @@ Exemplos:
 }
 ```
 
-## Regras importantes
-- Os nomes das chaves devem ser exatamente como acima: `files`, `description`, `CLI`, `STRUCTURE`, `FUNCTIONS`, `CLASSES` e `INPUTS`
-- A estrutura do JSON deve respeitar a ordem esperada pelo validador do projeto.
-- Cada arquivo listado em `files` deve ter pelo menos um bloco de verificação.
-- Os campos `input` e `expected` são obrigatórios nos itens de teste e `info` é opcional.
-- Os textos usados como prompt em `input()` são ignorados; apenas a saída produzida pelo programa é considerada.
-- Quando `regex` é `true`, o valor esperado é tratado como uma expressão regular e deve corresponder à saída produzida inteira. Para aceitar conteúdo adicional, use uma expressão regular como `.*`.
-
 ## Exemplo completo
 Um arquivo de correção pode combinar vários tipos de teste em um mesmo exercício:
 
@@ -279,7 +279,9 @@ Um arquivo de correção pode combinar vários tipos de teste em um mesmo exerc�
     "CLI": [
       {
         "input": "",
-        "expected": "Hello, World!"
+        "regex": true,
+        "expected": "Hello, World!",
+        "info": "retorna Hello World no console"
       }
     ]
   }
