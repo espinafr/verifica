@@ -5,14 +5,17 @@
         "INPUTS":[
             {
                 "input": ["amora", "morango", "cereja"],
+                "regex": true,
                 "expected": ["Hmmm, também gosto de amora, morango e cereja!"]
             },
             {
                 "input": ["fidelidade", "amor", "pudim"],
+                "regex": true,
                 "expected": ["Hmmm, também gosto de fidelidade, amor e pudim!"]
             },
             {
                 "input": ["REPITA", "fidelidade", "pudim"],
+                "regex": true,
                 "expected": ["fidelidade", "pudim"],
                 "info": "REPITA repete os inputs anteriores, sem a palavra REPITA"
             }
