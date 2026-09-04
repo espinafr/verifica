@@ -5,16 +5,19 @@
         "CLI": [
             {
                 "input": "",
+                "regex": true,
                 "expected": "Hello, World!",
                 "info": "mostra hello world no console quando não há input"
             },
             {
                 "input": "Théo",
+                "regex": true,
                 "expected": "Hello, Théo!",
                 "info": "lida com input de nome"
             },
             {
                 "input": "Enzo",
+                "regex": true,
                 "expected": "Hello, Enzo!"
             }
         ]

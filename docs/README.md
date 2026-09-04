@@ -64,7 +64,7 @@ Exemplo mínimo:
 - Cada arquivo listado em `files` deve ter pelo menos um bloco de verificação.
 - Os campos `input` e `expected` são obrigatórios nos itens de teste e `info` é opcional.
 - Os textos usados como prompt em `input()` são ignorados; apenas a saída produzida pelo programa é considerada.
-- Quando `regex` é `true`, o valor esperado é tratado como uma expressão regular e deve corresponder à saída produzida inteira. **Altamente recomendado para a maioria dos casos**, pois mantê-lo desativado apenas checa se o valor esperado está presente em qualquer lugar do output.
+- Quando `regex` é `true`, o valor esperado é tratado como uma expressão regular e deve corresponder à saída produzida inteira. **Altamente recomendado para a maioria dos casos**, pois mantê-lo desativado apenas checa se o valor esperado está presente em qualquer lugar do output (o comportamento foi mantido assim por questões de compatibilidade).
 
 ## Blocos de verificação
 Cada arquivo listado em "files" pode conter um ou mais blocos de testes. Os blocos aceitos pelo projeto são:
@@ -75,9 +75,9 @@ Usado para testar comandos executados no terminal.
 Cada item da lista deve ter:
 
 - `input`: texto de entrada, separado por espaço para simular argumentos de linha de comando
+- `regex`: booleano; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 - `expected`: texto esperado na saída do programa
 - `info`: descrição opcional da verificação
-- `regex`: booleano opcional; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 
 Exemplo:
 
@@ -197,9 +197,9 @@ Usado para testar a leitura de entrada pelo programa. Os valores esperados e inp
 Cada item deve ter:
 
 - `input`: texto enviado ao programa via stdin (lista ou string)
+- `regex`: booleano; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 - `expected`: saída esperada (lista ou string)
 - `info`: descrição opcional
-- `regex`: booleano opcional; quando `true`, trata `expected` como uma expressão regular que deve corresponder à saída inteira
 
 Exemplos:
 

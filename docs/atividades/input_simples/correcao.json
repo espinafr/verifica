@@ -5,20 +5,24 @@
         "INPUTS": [
             {
                 "input": "Théo",
+                "regex": true,
                 "expected": "Olá Théo",
                 "info": "lida com acentos no nome"
             },
             {
                 "input": "Jim do The Office",
+                "regex": true,
                 "expected": "Olá Jim do The Office",
                 "info": "lida com espaços no nome"
             },
             {
                 "input": "Dwight",
+                "regex": true,
                 "expected": "Olá Dwight"
             },
             {
                 "input": "Angela",
+                "regex": true,
                 "expected": "Olá Angela"
             }
         ]

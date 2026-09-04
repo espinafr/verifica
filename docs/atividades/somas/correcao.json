@@ -10,6 +10,7 @@
                     "10",
                     ""
                 ],
+                "regex": true,
                 "expected": [
                     "20"
                 ],
@@ -21,6 +22,7 @@
                     "-10",
                     ""
                 ],
+                "regex": true,
                 "expected": [
                     "10"
                 ],
@@ -32,6 +34,7 @@
                     "-20",
                     ""
                 ],
+                "regex": true,
                 "expected": [
                     "-50"
                 ],
@@ -44,6 +47,7 @@
                     "4",
                     ""
                 ],
+                "regex": true,
                 "expected": [
                     "44"
                 ],
@@ -58,6 +62,7 @@
                     "-4",
                     ""
                 ],
+                "regex": true,
                 "expected": [
                     "0"
                 ]
