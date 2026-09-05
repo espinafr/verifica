@@ -9,7 +9,7 @@ def test_CLI(file_path: str, input_args: list[str], expected_output: str, use_re
 
     Args:
         file_path (str): Caminho do arquivo a ser testado
-        input_data (list[str]): Lista de inputs a serem fornecidos ao programa
+        input_data (list[str]): Lista de argumentos a serem fornecidos ao programa
         expected_output (str): Saída esperada
 
     Returns:
