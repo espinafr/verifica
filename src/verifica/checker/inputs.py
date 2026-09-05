@@ -55,10 +55,27 @@ def test_INPUTS(file_path: str, input_data: list[str], expected_output: list[str
             logger.debug(f"[INPUT] Saída do input: {output}")
 
             if use_regex:
-                expected_pattern = "\n".join(expected_output)
-                is_expected = re.fullmatch(expected_pattern, output, re.DOTALL) is not None
+                output_lines = output.split('\n')
+                # Remove linhas vazias no final para evitar problemas de comparação
+                while output_lines and output_lines[-1] == '':
+                    output_lines.pop()
 
-                return Result(is_expected, "" if is_expected else f"o output esperado '{expected_pattern}' não correspondeu à saída '{output}'")
+                # Se há múltiplos regexes, verifica linha por linha
+                if len(expected_output) > 1:
+                    if len(output_lines) != len(expected_output):
+                        error_msg = f"número de linhas de saída ({len(output_lines)}) não corresponde ao número de padrões esperados ({len(expected_output)})"
+                        return Result(False, error_msg)
+
+                    for i, (output_line, pattern) in enumerate(zip(output_lines, expected_output)):
+                        if re.fullmatch(pattern, output_line, re.DOTALL) is None:
+                            return Result(False, f"linha {i + 1}: '{output_line}' não correspondeu ao regex esperado '{pattern}'")
+
+                    return Result(True, "")
+                else:
+                    # Mas um único regex pode ser multi-linha
+                    expected_pattern = expected_output[0]
+                    is_expected = re.fullmatch(expected_pattern, output, re.DOTALL) is not None
+                    return Result(is_expected, "" if is_expected else f"o regex de output esperado '{expected_pattern}' não correspondeu à saída '{output}'")
             else:
                 is_expected = all(
                     expected in output
